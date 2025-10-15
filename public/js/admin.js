@@ -6,7 +6,9 @@ let currentPage = 1;
 const itemsPerPage = 20;
 
 // Load data on page load
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Wait for config to load before making API calls
+  await configPromise;
   loadStats();
   loadRegistrations();
 });

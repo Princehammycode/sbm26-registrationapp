@@ -3,7 +3,10 @@
 let currentTicket = null;
 
 // Load ticket on page load
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Wait for config to load before making API calls
+  await configPromise;
+  
   const ticketId = getTicketIdFromURL();
   
   if (ticketId) {

@@ -12,6 +12,9 @@ const successMessage = document.getElementById('successMessage');
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
+  // Wait for config to load before making API calls
+  await configPromise;
+
   // Get form data
   const formData = {
     name: document.getElementById('name').value.trim(),
