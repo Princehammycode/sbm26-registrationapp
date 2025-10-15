@@ -12,20 +12,30 @@ let auth = null;
 // Initialize Google Sheets API
 async function initGoogleSheets() {
   try {
-    // Check if credentials file exists
-    const credentialsPath = path.join(__dirname, '..', 'google-credentials.json');
-    
-    if (!fs.existsSync(credentialsPath)) {
-      console.log('⚠️  Google Sheets credentials not found. Using local Excel instead.');
-      return false;
-    }
-
     if (!SPREADSHEET_ID) {
       console.log('⚠️  GOOGLE_SPREADSHEET_ID not set. Using local Excel instead.');
       return false;
     }
 
-    const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
+    let credentials;
+
+    // Check if credentials are provided as base64 environment variable (for deployment)
+    if (process.env.GOOGLE_CREDENTIALS_BASE64) {
+      console.log('📄 Loading Google credentials from environment variable');
+      const credentialsJson = Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf8');
+      credentials = JSON.parse(credentialsJson);
+    } else {
+      // Check if credentials file exists (for local development)
+      const credentialsPath = path.join(__dirname, '..', 'google-credentials.json');
+      
+      if (!fs.existsSync(credentialsPath)) {
+        console.log('⚠️  Google Sheets credentials not found. Using local Excel instead.');
+        return false;
+      }
+
+      console.log('📄 Loading Google credentials from file');
+      credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
+    }
     
     auth = new google.auth.GoogleAuth({
       credentials,

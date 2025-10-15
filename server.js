@@ -20,6 +20,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
+// Serve API configuration to frontend
+app.get('/api/config', (req, res) => {
+  res.json({
+    apiUrl: process.env.API_BASE_URL || `${req.protocol}://${req.get('host')}/api`
+  });
+});
+
 // Initialize database and storage
 dbService.initDatabase().catch(console.error);
 excelService.initStorage().catch(console.error);

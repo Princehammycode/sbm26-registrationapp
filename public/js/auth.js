@@ -1,7 +1,4 @@
-// Configuration - Only declare if not already declared
-if (typeof API_BASE_URL === 'undefined') {
-  var API_BASE_URL = 'http://localhost:3000/api';
-}
+// API_BASE_URL is loaded from config.js
 
 // Check if already logged in (for login page)
 if (window.location.pathname === '/login' || window.location.pathname === '/login.html') {

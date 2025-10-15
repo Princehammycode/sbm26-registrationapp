@@ -1,8 +1,4 @@
-// Configuration - Update this with your backend URL
-// Use var to avoid conflicts with auth.js
-var API_BASE_URL = 'http://localhost:3000/api';
-// For production, use your deployed backend URL:
-// var API_BASE_URL = 'https://your-backend-url.com/api';
+// API_BASE_URL is loaded from config.js
 
 let allRegistrations = [];
 let filteredRegistrations = [];
