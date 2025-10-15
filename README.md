@@ -86,7 +86,6 @@ sbm-recordapp/
 │   ├── excelService.js
 │   └── dbService.js
 ├── database/            # Database schemas
-└── registrations.xlsx   # Excel storage (auto-generated)
 ```
 
 ## API Endpoints
@@ -99,8 +98,8 @@ sbm-recordapp/
 ## SMS API Configuration
 
 The app uses Deywuro SMS API with the following credentials:
-- **Sender Name:** HHC-SBM
-- **API URL:** https://deywuro.com/api/sms
+- **Sender Name:** your-mnotify-sender-id
+- **MNOTIFY API:** Your mnotify api key
 
 ## Email Template
 
@@ -112,7 +111,7 @@ Emails are sent with a custom HTML template matching the provided design, includ
 
 ## Admin Dashboard
 
-Access the admin dashboard at `/admin.html` to view:
+Access the admin dashboard at `/admin-dashboard` to view:
 - Total registrations
 - Email delivery status
 - SMS delivery status
