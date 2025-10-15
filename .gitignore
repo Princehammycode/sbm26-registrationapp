@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# Data files
+registrations.xlsx
+google-credentials.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Credentials files
+google-credentials.json
+package-lock.json
+backend-deployment.md
+DEPENDENCIES.md
+deploy-github.md
+GITHUB-PUSH-GUIDE.md
+DEPLOYMENT-GUIDE.md
+PUSH-TO-GITHUB.TXT
+SECURITY-IMPLEMENTED.md
+SETUP.md

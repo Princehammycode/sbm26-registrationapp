@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator - HHC-SBM</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      color: #667eea;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      color: #555;
+      font-size: 20px;
+      font-weight: 400;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      color: #333;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 16px 40px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .qr-display {
+      margin-top: 30px;
+      padding: 30px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .qr-display.show {
+      display: block;
+    }
+
+    .qr-display img {
+      max-width: 100%;
+      height: auto;
+      margin: 20px 0;
+    }
+
+    .download-btn {
+      background: #28a745;
+      margin-top: 15px;
+    }
+
+    .download-btn:hover {
+      background: #218838;
+    }
+
+    .info {
+      background: #e7f3ff;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      margin-top: 20px;
+      text-align: left;
+      border-radius: 4px;
+    }
+
+    .info p {
+      color: #555;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>HHC-SBM</h1>
+    <h2>QR Code Generator</h2>
+
+    <div class="input-group">
+      <label for="registrationUrl">Registration Page URL:</label>
+      <input 
+        type="url" 
+        id="registrationUrl" 
+        placeholder="https://yourusername.github.io/sbm-recordapp/"
+        value=""
+      >
+    </div>
+
+    <button onclick="generateQR()">Generate QR Code</button>
+
+    <div id="qrDisplay" class="qr-display">
+      <h3>Your QR Code</h3>
+      <img id="qrImage" src="" alt="QR Code">
+      <p style="color: #666; margin-bottom: 15px;">Scan this QR code to access the registration page</p>
+      <button class="download-btn" onclick="downloadQR()">📥 Download QR Code</button>
+    </div>
+
+    <div class="info">
+      <p><strong>Instructions:</strong></p>
+      <p>1. Enter your GitHub Pages URL (e.g., https://yourusername.github.io/sbm-recordapp/)</p>
+      <p>2. Click "Generate QR Code"</p>
+      <p>3. Download the QR code image</p>
+      <p>4. Print and display at your event location</p>
+    </div>
+  </div>
+
+  <script>
+    // Auto-fill with current domain if on GitHub Pages
+    window.addEventListener('DOMContentLoaded', () => {
+      const currentUrl = window.location.origin + window.location.pathname.replace('qr-generator.html', '');
+      if (currentUrl.includes('github.io')) {
+        document.getElementById('registrationUrl').value = currentUrl;
+      }
+    });
+
+    function generateQR() {
+      const url = document.getElementById('registrationUrl').value.trim();
+      
+      if (!url) {
+        alert('Please enter a valid URL');
+        return;
+      }
+
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        alert('URL must start with http:// or https://');
+        return;
+      }
+
+      const qrSize = 500;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(url)}`;
+      
+      document.getElementById('qrImage').src = qrUrl;
+      document.getElementById('qrDisplay').classList.add('show');
+    }
+
+    function downloadQR() {
+      const qrImage = document.getElementById('qrImage');
+      const url = qrImage.src;
+      
+      fetch(url)
+        .then(response => response.blob())
+        .then(blob => {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'hhc-sbm-registration-qr-code.png';
+          link.click();
+          URL.revokeObjectURL(link.href);
+        })
+        .catch(error => {
+          console.error('Download error:', error);
+          alert('Failed to download. Please right-click the image and save it manually.');
+        });
+    }
+  </script>
+</body>
+</html>

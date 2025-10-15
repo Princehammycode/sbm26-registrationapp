@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supernatural Breakfast Meeting 2025 - Registration</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="registration-card">
+      <div class="header">
+        <h1>Supernatural Breakfast Meeting</h1>
+        <h2>Event Registration</h2>
+      </div>
+
+      <form id="registrationForm">
+        <div class="form-group">
+          <label for="name">Full Name <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            required 
+            placeholder="Enter your full name"
+            autocomplete="name"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="contact">Phone Number <span class="required">*</span></label>
+          <input 
+            type="tel" 
+            id="contact" 
+            name="contact" 
+            required 
+            placeholder="e.g., 0241234567"
+            pattern="[0-9]{10,15}"
+            autocomplete="tel"
+          >
+          <small>Enter a valid phone number (10-15 digits)</small>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address <span class="optional">(Optional)</span></label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            placeholder="your.email@example.com"
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="location">Location <span class="optional">(Optional)</span></label>
+          <input 
+            type="text" 
+            id="location" 
+            name="location" 
+            placeholder="City or Area"
+            autocomplete="address-level2"
+          >
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span class="btn-text">Register Now</span>
+          <span class="btn-loader" style="display: none;">
+            <span class="spinner"></span> Processing...
+          </span>
+        </button>
+      </form>
+
+      <div id="message" class="message" style="display: none;"></div>
+    </div>
+
+    <!-- Event Details -->
+    <div class="event-details">
+      <h3>📅 SAT. 18TH OCTOBER</h3>
+      <p>🕖 7:00 AM</p>
+      <p>📍 ACCRA INTERNATIONAL CONFERENCE CENTER - GRAND ARENA</p>
+      <p>🎤 WITH REV. KWADWO BEMPAH</p>
+      <p class="theme">PRAYER BIRTHS MIRACLES</p>
+      <p class="scripture">(ISAIAH 66:8/ACTS 2:42-43)</p>
+    </div>
+
+    <div class="footer">
+      <p>@DR. KWADWO BEMPAH | @HOLY HILL CHAPEL AG</p>
+      <p>Powered by Holy Hill Chapel &copy; 2025</p>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="modal">
+    <div class="modal-content">
+      <div class="success-icon">✓</div>
+      <h2>Registration Successful!</h2>
+      <p id="successMessage"></p>
+      <button onclick="closeModal()" class="modal-btn">OK</button>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
