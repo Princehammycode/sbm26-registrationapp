@@ -24,19 +24,20 @@ form.addEventListener('submit', async (e) => {
 
   // Validate required fields
   if (!formData.name || !formData.contact) {
-    showMessage('Please fill in all required fields', 'error');
+    showErrorModal('Please fill in all required fields');
     return;
   }
 
-  // Validate phone number
-  if (!/^[0-9]{10,15}$/.test(formData.contact)) {
-    showMessage('Please enter a valid phone number (10-15 digits)', 'error');
+  // Validate phone number with specific rules
+  const phoneValidation = validatePhoneNumber(formData.contact);
+  if (!phoneValidation.valid) {
+    showErrorModal(phoneValidation.message);
     return;
   }
 
-  // Validate email if provided
+  // Validate email if provided (more strict validation)
   if (formData.email && !isValidEmail(formData.email)) {
-    showMessage('Please enter a valid email address', 'error');
+    showErrorModal('Please enter a valid email address (e.g., name@example.com)');
     return;
   }
 
@@ -130,9 +131,83 @@ function closeErrorModal() {
   errorModal.style.display = 'none';
 }
 
+// Validate phone number with Ghana-specific rules
+function validatePhoneNumber(phone) {
+  // Remove any spaces or dashes
+  const cleanPhone = phone.replace(/[\s\-]/g, '');
+  
+  // Check if phone contains only digits
+  if (!/^\d+$/.test(cleanPhone)) {
+    return {
+      valid: false,
+      message: 'Phone number must contain only digits'
+    };
+  }
+  
+  // If starts with 0 (local format): must be exactly 10 digits
+  if (cleanPhone.startsWith('0')) {
+    if (cleanPhone.length !== 10) {
+      return {
+        valid: false,
+        message: 'Phone number starting with 0 must be exactly 10 digits (e.g., 0244123456)'
+      };
+    }
+    
+    // Check if second digit is valid (2, 5, or 3 for Ghana)
+    const secondDigit = cleanPhone[1];
+    if (!['2', '3', '5'].includes(secondDigit)) {
+      return {
+        valid: false,
+        message: 'Invalid phone number format. Must start with 024, 025, 020, 050, 054, 055, 059, 030, etc.'
+      };
+    }
+    
+    return { valid: true };
+  }
+  
+  // If starts with 233 (international format): must be exactly 12 digits
+  if (cleanPhone.startsWith('233')) {
+    if (cleanPhone.length !== 12) {
+      return {
+        valid: false,
+        message: 'Phone number starting with 233 must be exactly 12 digits (e.g., 233244123456)'
+      };
+    }
+    
+    // Check if fourth digit is valid (2, 5, or 3 for Ghana)
+    const fourthDigit = cleanPhone[3];
+    if (!['2', '3', '5'].includes(fourthDigit)) {
+      return {
+        valid: false,
+        message: 'Invalid phone number format. Must be 233244..., 233554..., etc.'
+      };
+    }
+    
+    return { valid: true };
+  }
+  
+  // If doesn't start with 0 or 233
+  return {
+    valid: false,
+    message: 'Phone number must start with 0 (10 digits) or 233 (12 digits)'
+  };
+}
+
+// Validate email with strict rules
 function isValidEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  // More comprehensive email validation
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  
+  if (!emailRegex.test(email)) {
+    return false;
+  }
+  
+  // Additional checks
+  if (email.length > 254) return false; // Max email length
+  if (email.startsWith('.') || email.endsWith('.')) return false;
+  if (email.includes('..')) return false; // No consecutive dots
+  
+  return true;
 }
 
 // Prevent closing modal by clicking outside - force user to click OK
@@ -142,8 +217,58 @@ function isValidEmail(email) {
 //   }
 // }
 
-// Phone number formatting (optional enhancement)
-document.getElementById('contact').addEventListener('input', function(e) {
+// Real-time phone number validation
+const contactInput = document.getElementById('contact');
+const phoneHelper = document.getElementById('phoneHelper');
+
+contactInput.addEventListener('input', function(e) {
   // Remove non-numeric characters
   this.value = this.value.replace(/[^0-9]/g, '');
+  
+  // Real-time validation feedback
+  const phone = this.value;
+  
+  if (phone.length === 0) {
+    phoneHelper.textContent = 'Format: 0XXXXXXXXX (10 digits) or 233XXXXXXXXXX (12 digits)';
+    phoneHelper.style.color = '#666';
+    this.style.borderColor = '';
+    return;
+  }
+  
+  const validation = validatePhoneNumber(phone);
+  
+  if (validation.valid) {
+    phoneHelper.textContent = '✓ Valid phone number';
+    phoneHelper.style.color = '#28a745';
+    this.style.borderColor = '#28a745';
+  } else {
+    phoneHelper.textContent = validation.message;
+    phoneHelper.style.color = '#dc3545';
+    this.style.borderColor = '#dc3545';
+  }
+});
+
+// Real-time email validation
+const emailInput = document.getElementById('email');
+const emailHelper = document.getElementById('emailHelper');
+
+emailInput.addEventListener('input', function(e) {
+  const email = this.value.trim();
+  
+  if (email.length === 0) {
+    emailHelper.textContent = 'Enter a valid email address';
+    emailHelper.style.color = '#666';
+    this.style.borderColor = '';
+    return;
+  }
+  
+  if (isValidEmail(email)) {
+    emailHelper.textContent = '✓ Valid email address';
+    emailHelper.style.color = '#28a745';
+    this.style.borderColor = '#28a745';
+  } else {
+    emailHelper.textContent = '✗ Invalid email format';
+    emailHelper.style.color = '#dc3545';
+    this.style.borderColor = '#dc3545';
+  }
 });

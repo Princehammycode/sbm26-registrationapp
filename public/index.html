@@ -34,11 +34,11 @@
             id="contact" 
             name="contact" 
             required 
-            placeholder="e.g., 0241234567"
-            pattern="[0-9]{10,15}"
+            placeholder="e.g., 0244123456 or 233244123456"
             autocomplete="tel"
+            maxlength="12"
           >
-          <small>Enter a valid phone number (10-15 digits)</small>
+          <small id="phoneHelper">Format: 0XXXXXXXXX (10 digits) or 233XXXXXXXXXX (12 digits)</small>
         </div>
 
         <div class="form-group">
@@ -50,6 +50,7 @@
             placeholder="your.email@example.com"
             autocomplete="email"
           >
+          <small id="emailHelper">Enter a valid email address</small>
         </div>
 
         <div class="form-group">

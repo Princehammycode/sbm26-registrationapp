@@ -34,8 +34,8 @@
     "helmet": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.6.5",
-    "nodemailer": "^6.9.7",
     "pdfkit": "^0.13.0",
+    "sib-api-v3-sdk": "^8.5.0",
     "uuid": "^9.0.1",
     "xlsx": "^0.18.5"
   },

@@ -1,20 +1,18 @@
-const nodemailer = require('nodemailer');
+const SibApiV3Sdk = require('sib-api-v3-sdk');
 
-// Create transporter with explicit configuration for Railway
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // Use TLS
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD
-  },
-  tls: {
-    rejectUnauthorized: false, // Allow self-signed certificates
-    ciphers: 'SSLv3'
-  }
-  // No timeouts - let it complete naturally for guaranteed delivery
-});
+// Initialize Brevo (Sendinblue)
+let brevoClient = null;
+const useBrevo = process.env.BREVO_API_KEY && process.env.BREVO_API_KEY.trim() !== '';
+
+if (useBrevo) {
+  const defaultClient = SibApiV3Sdk.ApiClient.instance;
+  const apiKey = defaultClient.authentications['api-key'];
+  apiKey.apiKey = process.env.BREVO_API_KEY;
+  brevoClient = new SibApiV3Sdk.TransactionalEmailsApi();
+  console.log('✅ Brevo initialized - 300 emails/day, send to ANYONE!');
+} else {
+  console.error('❌ Brevo not configured! Please set BREVO_API_KEY and BREVO_FROM_EMAIL in Railway.');
+}
 
 // Email template with inline styles for better email client compatibility
 const getEmailTemplate = (name, ticketCode, downloadUrl) => {
@@ -157,24 +155,29 @@ const getEmailTemplate = (name, ticketCode, downloadUrl) => {
   `;
 };
 
-// Send registration email
+// Send registration email via Brevo
 async function sendRegistrationEmail(name, email, ticketCode, downloadUrl) {
-  const mailOptions = {
-    from: {
-      name: 'HHC-SBM',
-      address: process.env.GMAIL_USER
-    },
-    to: email,
-    subject: 'Event RSVP Confirmation - HHC-SBM',
-    html: getEmailTemplate(name, ticketCode, downloadUrl)
-  };
+  if (!useBrevo || !brevoClient) {
+    throw new Error('Brevo not configured. Please set BREVO_API_KEY and BREVO_FROM_EMAIL in Railway.');
+  }
+
+  const htmlContent = getEmailTemplate(name, ticketCode, downloadUrl);
+  const subject = 'Event RSVP Confirmation - HHC-SBM';
+  const fromEmail = process.env.BREVO_FROM_EMAIL || 'noreply@hhc-sbm.com';
+  const fromName = process.env.EMAIL_FROM_NAME || 'HHC-SBM25';
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+    sendSmtpEmail.sender = { name: fromName, email: fromEmail };
+    sendSmtpEmail.to = [{ email: email, name: name }];
+    sendSmtpEmail.subject = subject;
+    sendSmtpEmail.htmlContent = htmlContent;
+
+    await brevoClient.sendTransacEmail(sendSmtpEmail);
+    console.log('✅ Email sent successfully via Brevo to:', email);
+    return { success: true, provider: 'Brevo' };
   } catch (error) {
-    console.error('Email sending error:', error);
+    console.error('❌ Brevo error:', error.message);
     throw error;
   }
 }
