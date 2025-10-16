@@ -74,6 +74,42 @@ app.post('/api/register', async (req, res) => {
       });
     }
 
+    // Normalize phone number for comparison (remove spaces, dashes, etc.)
+    const normalizePhone = (phone) => {
+      return phone.replace(/[\s\-\(\)]/g, '');
+    };
+
+    const normalizedContact = normalizePhone(contact);
+
+    // Check for duplicate phone number
+    const existingRegistrations = await excelService.getAllRegistrations();
+    const isDuplicate = existingRegistrations.some(reg => {
+      const existingPhone = normalizePhone(reg.contact || reg.Contact || '');
+      
+      // Check if phones match exactly
+      if (existingPhone === normalizedContact) {
+        return true;
+      }
+      
+      // Check if one has country code and other doesn't
+      // 23324XXXXXXX vs 024XXXXXXX
+      if (existingPhone.startsWith('233') && normalizedContact.startsWith('0')) {
+        return existingPhone === '233' + normalizedContact.substring(1);
+      }
+      if (normalizedContact.startsWith('233') && existingPhone.startsWith('0')) {
+        return normalizedContact === '233' + existingPhone.substring(1);
+      }
+      
+      return false;
+    });
+
+    if (isDuplicate) {
+      return res.status(400).json({
+        success: false,
+        message: 'This phone number has already been registered. Each person can only register once.'
+      });
+    }
+
     // Generate unique ticket ID (SMB25-XXXXXX format)
     const randomNumber = Math.floor(100000 + Math.random() * 900000); // 6-digit number
     const ticketId = `SMB25-${randomNumber}`;

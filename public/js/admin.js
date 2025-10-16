@@ -5,8 +5,28 @@ let filteredRegistrations = [];
 let currentPage = 1;
 const itemsPerPage = 20;
 
+// Save and restore pagination state
+function savePaginationState() {
+  sessionStorage.setItem('adminCurrentPage', currentPage);
+  sessionStorage.setItem('adminSearchQuery', document.getElementById('searchInput')?.value || '');
+}
+
+function restorePaginationState() {
+  const savedPage = sessionStorage.getItem('adminCurrentPage');
+  const savedSearch = sessionStorage.getItem('adminSearchQuery');
+  
+  if (savedPage) {
+    currentPage = parseInt(savedPage);
+  }
+  
+  if (savedSearch && document.getElementById('searchInput')) {
+    document.getElementById('searchInput').value = savedSearch;
+  }
+}
+
 // Load data on page load
 document.addEventListener('DOMContentLoaded', () => {
+  restorePaginationState();
   loadStats();
   loadRegistrations();
 });
@@ -66,8 +86,25 @@ async function loadRegistrations() {
 
     if (data.success && data.data.length > 0) {
       allRegistrations = data.data;
-      filteredRegistrations = data.data;
-      currentPage = 1;
+      
+      // Apply saved search filter if exists
+      const savedSearch = sessionStorage.getItem('adminSearchQuery');
+      if (savedSearch) {
+        filteredRegistrations = allRegistrations.filter(reg => {
+          const searchLower = savedSearch.toLowerCase();
+          return (
+            reg.name?.toLowerCase().includes(searchLower) ||
+            reg.contact?.toLowerCase().includes(searchLower) ||
+            reg.email?.toLowerCase().includes(searchLower) ||
+            reg.location?.toLowerCase().includes(searchLower) ||
+            reg.ticketId?.toLowerCase().includes(searchLower)
+          );
+        });
+      } else {
+        filteredRegistrations = data.data;
+      }
+      
+      // Don't reset currentPage - it was restored from sessionStorage
       displayRegistrations();
     } else {
       tableBody.innerHTML = '<tr><td colspan="9" class="no-data">No registrations found</td></tr>';
@@ -153,6 +190,7 @@ function filterTable() {
   });
 
   currentPage = 1; // Reset to first page when filtering
+  savePaginationState();
   displayRegistrations();
 }
 
@@ -194,6 +232,7 @@ function updatePaginationControls(totalPages) {
 
 function goToPage(page) {
   currentPage = page;
+  savePaginationState();
   displayRegistrations();
 }
 
@@ -201,6 +240,7 @@ function nextPage() {
   const totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
   if (currentPage < totalPages) {
     currentPage++;
+    savePaginationState();
     displayRegistrations();
   }
 }
@@ -208,17 +248,20 @@ function nextPage() {
 function previousPage() {
   if (currentPage > 1) {
     currentPage--;
+    savePaginationState();
     displayRegistrations();
   }
 }
 
 function goToFirstPage() {
   currentPage = 1;
+  savePaginationState();
   displayRegistrations();
 }
 
 function goToLastPage() {
   currentPage = Math.ceil(filteredRegistrations.length / itemsPerPage);
+  savePaginationState();
   displayRegistrations();
 }
 

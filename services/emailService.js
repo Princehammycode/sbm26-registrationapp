@@ -61,7 +61,7 @@ const getEmailTemplate = (name, ticketCode, downloadUrl) => {
         
         <p class="content-text mobile-padding" style="margin-bottom: 15px; font-size:18px; padding-left: 40px; padding-right: 40px;">Thank you for registering for Supernatural Breakfast Meeting 2025!! We're excited to have you join us.</p>
         
-        <p class="content-text mobile-padding" style="margin-bottom: 15px; font-size:18px; padding-left: 40px; padding-right: 40px;">Please click on the button below to view/download your E-ticket:</p>
+        <p class="content-text mobile-padding" style="margin-bottom: 15px; font-size:18px; padding-left: 40px; padding-right: 40px;">Please click on the button below to download your E-ticket:</p>
         
         <!-- Ticket Code -->
         <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0;">

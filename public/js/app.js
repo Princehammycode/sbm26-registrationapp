@@ -7,6 +7,8 @@ const btnLoader = submitBtn.querySelector('.btn-loader');
 const messageDiv = document.getElementById('message');
 const successModal = document.getElementById('successModal');
 const successMessage = document.getElementById('successMessage');
+const errorModal = document.getElementById('errorModal');
+const errorMessage = document.getElementById('errorMessage');
 
 // Form submission handler
 form.addEventListener('submit', async (e) => {
@@ -69,12 +71,13 @@ form.addEventListener('submit', async (e) => {
       form.reset(); // Reset form immediately
 
     } else {
-      showMessage(data.message || 'Registration failed. Please try again.', 'error');
+      // Show error modal instead of inline message
+      showErrorModal(data.message || 'Registration failed. Please try again.');
     }
 
   } catch (error) {
     console.error('Registration error:', error);
-    showMessage('Network error. Please check your connection and try again.', 'error');
+    showErrorModal('Network error. Please check your connection and try again.');
   } finally {
     setLoading(false);
   }
@@ -116,6 +119,15 @@ function closeModal() {
   successModal.style.display = 'none';
   // Reload page after closing modal
   window.location.reload();
+}
+
+function showErrorModal(message) {
+  errorMessage.textContent = message;
+  errorModal.style.display = 'block';
+}
+
+function closeErrorModal() {
+  errorModal.style.display = 'none';
 }
 
 function isValidEmail(email) {
