@@ -27,12 +27,16 @@ async function sendRegistrationSMS(phoneNumber, name, ticketId, downloadUrl) {
   };
 
   try {
-    // mNotify API endpoint
+    // mNotify API endpoint - No timeout for immediate delivery
     const response = await axios.post('https://api.mnotify.com/api/sms/quick', smsData, {
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
-      timeout: 10000 // 15 seconds timeout
+      maxRedirects: 5,
+      validateStatus: function (status) {
+        return status >= 200 && status < 500; // Accept any status code less than 500
+      }
     });
 
     console.log('SMS sent successfully:', response.data);

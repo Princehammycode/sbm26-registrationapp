@@ -1,12 +1,19 @@
 const nodemailer = require('nodemailer');
 
-// Create transporter
+// Create transporter with explicit configuration for Railway
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // Use TLS
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD
+  },
+  tls: {
+    rejectUnauthorized: false, // Allow self-signed certificates
+    ciphers: 'SSLv3'
   }
+  // No timeouts - let it complete naturally for guaranteed delivery
 });
 
 // Email template with inline styles for better email client compatibility

@@ -129,53 +129,56 @@ app.post('/api/register', async (req, res) => {
     // Save to Google Sheets immediately (fast operation)
     await excelService.saveToExcel(registration);
 
-    // Respond to user immediately for better UX
-    res.json({
-      success: true,
-      message: 'Registration successful!',
-      ticketId,
-      ticketDownloadUrl
-    });
-
-    // Process email and SMS in the background (don't wait for them)
-    // This makes the response instant for the user
-    setImmediate(async () => {
-      // Send Email if provided
-      if (email && email.trim() !== '') {
-        try {
-          await emailService.sendRegistrationEmail(name, email, ticketId, ticketDownloadUrl);
-          registration.emailSent = true;
-          console.log('✅ Email sent successfully to:', email);
-          
-          // Update Google Sheets with email status
-          await excelService.updateRegistrationStatus(ticketId, { emailSent: true });
-        } catch (emailError) {
-          console.error('❌ Email sending failed:', emailError);
-        }
-      }
-
-      // Send SMS
+    // Send SMS IMMEDIATELY (don't wait, fire and forget)
+    // This ensures instant delivery like on local
+    (async () => {
       try {
+        console.log('📱 Sending SMS to:', contact);
         const smsResult = await smsService.sendRegistrationSMS(contact, name, ticketId, ticketDownloadUrl);
         if (smsResult && smsResult.success) {
-          registration.smsSent = true;
           console.log('✅ SMS sent successfully to:', contact);
-          
-          // Update Google Sheets with SMS status
-          await excelService.updateRegistrationStatus(ticketId, { smsSent: true });
+          await excelService.updateRegistrationStatus(ticketId, { smsSent: true }).catch(err => 
+            console.error('Failed to update SMS status:', err)
+          );
         } else {
           console.error('❌ SMS sending failed:', smsResult?.message || 'Unknown error');
         }
       } catch (smsError) {
-        console.error('❌ SMS sending error:', smsError);
+        console.error('❌ SMS sending error:', smsError.message);
       }
+    })();
 
-      // Save to MySQL (optional, in background)
+    // Send Email IMMEDIATELY (don't wait, fire and forget)
+    if (email && email.trim() !== '') {
+      (async () => {
+        try {
+          console.log('📧 Sending email to:', email);
+          await emailService.sendRegistrationEmail(name, email, ticketId, ticketDownloadUrl);
+          console.log('✅ Email sent successfully to:', email);
+          await excelService.updateRegistrationStatus(ticketId, { emailSent: true }).catch(err => 
+            console.error('Failed to update email status:', err)
+          );
+        } catch (emailError) {
+          console.error('❌ Email sending failed:', emailError.message);
+        }
+      })();
+    }
+
+    // Save to MySQL in background (optional)
+    (async () => {
       try {
         await dbService.saveRegistration(registration);
       } catch (dbError) {
         console.log('⚠️  MySQL save skipped (database not configured)');
       }
+    })();
+
+    // Respond to user immediately
+    res.json({
+      success: true,
+      message: 'Registration successful!',
+      ticketId,
+      ticketDownloadUrl
     });
 
   } catch (error) {
