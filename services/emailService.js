@@ -66,7 +66,7 @@ const getEmailTemplate = (name, ticketCode, downloadUrl) => {
         
         <p class="content-text mobile-padding" style="margin-bottom: 15px; font-size:18px; padding-left: 40px; padding-right: 40px;">Thank you for registering for Supernatural Breakfast Meeting 2025!! We're excited to have you join us.</p>
         
-        <p class="content-text mobile-padding" style="margin-bottom: 15px; font-size:18px; padding-left: 40px; padding-right: 40px;">Please click on the button below to download your E-ticket:</p>
+        <p class="content-text mobile-padding" style="margin-bottom: 15px; font-size:18px; padding-left: 40px; padding-right: 40px;">Please click the button below to view and download your E-ticket:</p>
         
         <!-- Ticket Code -->
         <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
@@ -83,7 +83,18 @@ const getEmailTemplate = (name, ticketCode, downloadUrl) => {
         <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
           <tr>
             <td style="text-align: center; padding: 0 20px;">
-              <a href="${downloadUrl}" class="download-btn" style="display: inline-block; background: linear-gradient(135deg, #FF6B35 0%, #F7931E 50%, #C1272D 100%); color: #ffffff; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">E-TICKET DOWNLOAD LINK</a>
+              <a href="${downloadUrl}" target="_blank" class="download-btn" style="display: inline-block; background: linear-gradient(135deg, #FF6B35 0%, #F7931E 50%, #C1272D 100%); color: #ffffff; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">📥 GET YOUR E-TICKET</a>
+            </td>
+          </tr>
+        </table>
+        
+        <!-- Mobile Instructions -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin: 10px 0;">
+          <tr>
+            <td class="mobile-padding" style="padding-left: 40px; padding-right: 40px;">
+              <p style="font-size: 13px; color: #666; text-align: center; margin: 0; line-height: 1.5;">
+                <em>📱 On mobile: Tap the button to view your ticket, then use your browser's download option to save it.</em>
+              </p>
             </td>
           </tr>
         </table>

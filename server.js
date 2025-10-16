@@ -239,7 +239,7 @@ app.get('/api/ticket/:ticketId', async (req, res) => {
   }
 });
 
-// Download ticket as PDF
+// Download ticket as PDF (mobile-friendly)
 app.get('/ticket/:ticketId', async (req, res) => {
   try {
     const { ticketId } = req.params;
@@ -255,15 +255,31 @@ app.get('/ticket/:ticketId', async (req, res) => {
     // Generate PDF
     const doc = pdfTicketService.generateTicketPDF(ticket);
     
-    // Set response headers for PDF download
+    // Detect if request is from mobile device
+    const userAgent = req.headers['user-agent'] || '';
+    const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    
+    // Set response headers for PDF
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="Ticket-${ticketId}.pdf"`);
+    
+    // On mobile: open inline (so user can view and then download)
+    // On desktop: force download
+    if (isMobile) {
+      res.setHeader('Content-Disposition', `inline; filename="Ticket-${ticketId}.pdf"`);
+    } else {
+      res.setHeader('Content-Disposition', `attachment; filename="Ticket-${ticketId}.pdf"`);
+    }
+    
+    // Additional headers for better mobile compatibility
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     
     // Pipe the PDF to the response
     doc.pipe(res);
     doc.end();
     
-    console.log(`📄 PDF ticket downloaded: ${ticketId}`);
+    console.log(`📄 PDF ticket ${isMobile ? 'opened' : 'downloaded'}: ${ticketId}`);
   } catch (error) {
     console.error('Error generating PDF ticket:', error);
     res.status(500).send('<h1>Error</h1><p>Failed to generate ticket. Please try again later.</p>');
