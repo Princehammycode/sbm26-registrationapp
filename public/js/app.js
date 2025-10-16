@@ -28,6 +28,13 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
+  // Validate name (alphabets and spaces only)
+  const nameValidation = validateName(formData.name);
+  if (!nameValidation.valid) {
+    showErrorModal(nameValidation.message);
+    return;
+  }
+
   // Validate phone number with specific rules
   const phoneValidation = validatePhoneNumber(formData.contact);
   if (!phoneValidation.valid) {
@@ -131,6 +138,49 @@ function closeErrorModal() {
   errorModal.style.display = 'none';
 }
 
+// Validate name (alphabets and spaces only)
+function validateName(name) {
+  // Remove extra spaces
+  const cleanName = name.trim();
+  
+  // Check if name is empty
+  if (cleanName.length === 0) {
+    return {
+      valid: false,
+      message: 'Name is required'
+    };
+  }
+  
+  // Check if name is too short
+  if (cleanName.length < 2) {
+    return {
+      valid: false,
+      message: 'Name must be at least 2 characters long'
+    };
+  }
+  
+  // Check if name contains only letters and spaces
+  // Allows: A-Z, a-z, spaces, hyphens, apostrophes (for names like O'Brien, Mary-Jane)
+  const nameRegex = /^[A-Za-z\s'-]+$/;
+  
+  if (!nameRegex.test(cleanName)) {
+    return {
+      valid: false,
+      message: 'Name must contain only letters and spaces (no numbers or symbols)'
+    };
+  }
+  
+  // Check if name has at least one letter (not just spaces)
+  if (!/[A-Za-z]/.test(cleanName)) {
+    return {
+      valid: false,
+      message: 'Name must contain at least one letter'
+    };
+  }
+  
+  return { valid: true };
+}
+
 // Validate phone number with Ghana-specific rules
 function validatePhoneNumber(phone) {
   // Remove any spaces or dashes
@@ -216,6 +266,33 @@ function isValidEmail(email) {
 //     closeModal();
 //   }
 // }
+
+// Real-time name validation
+const nameInput = document.getElementById('name');
+const nameHelper = document.getElementById('nameHelper');
+
+nameInput.addEventListener('input', function(e) {
+  const name = this.value;
+  
+  if (name.length === 0) {
+    nameHelper.textContent = 'Enter your full name (letters only)';
+    nameHelper.style.color = '#666';
+    this.style.borderColor = '';
+    return;
+  }
+  
+  const validation = validateName(name);
+  
+  if (validation.valid) {
+    nameHelper.textContent = '✓ Valid name';
+    nameHelper.style.color = '#28a745';
+    this.style.borderColor = '#28a745';
+  } else {
+    nameHelper.textContent = validation.message;
+    nameHelper.style.color = '#dc3545';
+    this.style.borderColor = '#dc3545';
+  }
+});
 
 // Real-time phone number validation
 const contactInput = document.getElementById('contact');
