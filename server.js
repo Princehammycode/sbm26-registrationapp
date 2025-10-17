@@ -7,6 +7,7 @@ const emailService = require('./services/emailService');
 const smsService = require('./services/smsService');
 const excelService = require('./services/excelService');
 const dbService = require('./services/dbService');
+const databaseService = require('./services/databaseService'); // PostgreSQL
 const pdfTicketService = require('./services/pdfTicketService');
 const { verifyToken, generateToken, verifyCredentials } = require('./middleware/auth');
 const { loginLimiter } = require('./middleware/security');
@@ -30,6 +31,14 @@ app.get('/api/config', (req, res) => {
 // Initialize database and storage
 dbService.initDatabase().catch(console.error);
 excelService.initStorage().catch(console.error);
+
+// Initialize PostgreSQL (if DATABASE_URL is set)
+if (process.env.DATABASE_URL) {
+  databaseService.initializeDatabase().catch(console.error);
+  console.log('🐘 Using PostgreSQL for primary storage');
+} else {
+  console.log('📊 Using Google Sheets for primary storage (PostgreSQL not configured)');
+}
 
 // Admin login endpoint
 app.post('/api/admin/login', loginLimiter, async (req, res) => {
@@ -126,8 +135,23 @@ app.post('/api/register', async (req, res) => {
       smsSent: false
     };
 
-    // Save to Google Sheets immediately (fast operation)
-    await excelService.saveToExcel(registration);
+    // Save to PostgreSQL (primary storage - fast)
+    if (process.env.DATABASE_URL) {
+      await databaseService.saveRegistration(registration);
+      
+      // Also save to Google Sheets in background (backup)
+      (async () => {
+        try {
+          await excelService.saveToExcel(registration);
+          console.log('✅ Backup saved to Google Sheets:', ticketId);
+        } catch (sheetError) {
+          console.error('⚠️ Google Sheets backup failed (non-critical):', sheetError.message);
+        }
+      })();
+    } else {
+      // Fallback: Use Google Sheets as primary
+      await excelService.saveToExcel(registration);
+    }
 
     // Send SMS IMMEDIATELY (don't wait, fire and forget)
     // This ensures instant delivery like on local
@@ -137,9 +161,21 @@ app.post('/api/register', async (req, res) => {
         const smsResult = await smsService.sendRegistrationSMS(contact, name, ticketId, ticketDownloadUrl);
         if (smsResult && smsResult.success) {
           console.log('✅ SMS sent successfully to:', contact);
-          await excelService.updateRegistrationStatus(ticketId, { smsSent: true }).catch(err => 
-            console.error('Failed to update SMS status:', err)
-          );
+          
+          // Update status in database
+          if (process.env.DATABASE_URL) {
+            await databaseService.updateRegistrationStatus(ticketId, false, true).catch(err => 
+              console.error('Failed to update SMS status in PostgreSQL:', err)
+            );
+            // Also update Google Sheets backup
+            await excelService.updateRegistrationStatus(ticketId, { smsSent: true }).catch(err => 
+              console.error('Failed to update SMS status in Sheets (non-critical):', err)
+            );
+          } else {
+            await excelService.updateRegistrationStatus(ticketId, { smsSent: true }).catch(err => 
+              console.error('Failed to update SMS status:', err)
+            );
+          }
         } else {
           console.error('❌ SMS sending failed:', smsResult?.message || 'Unknown error');
         }
@@ -155,9 +191,21 @@ app.post('/api/register', async (req, res) => {
           console.log('📧 Sending email to:', email);
           await emailService.sendRegistrationEmail(name, email, ticketId, ticketDownloadUrl);
           console.log('✅ Email sent successfully to:', email);
-          await excelService.updateRegistrationStatus(ticketId, { emailSent: true }).catch(err => 
-            console.error('Failed to update email status:', err)
-          );
+          
+          // Update status in database
+          if (process.env.DATABASE_URL) {
+            await databaseService.updateRegistrationStatus(ticketId, true, false).catch(err => 
+              console.error('Failed to update email status in PostgreSQL:', err)
+            );
+            // Also update Google Sheets backup
+            await excelService.updateRegistrationStatus(ticketId, { emailSent: true }).catch(err => 
+              console.error('Failed to update email status in Sheets (non-critical):', err)
+            );
+          } else {
+            await excelService.updateRegistrationStatus(ticketId, { emailSent: true }).catch(err => 
+              console.error('Failed to update email status:', err)
+            );
+          }
         } catch (emailError) {
           console.error('❌ Email sending failed:', emailError.message);
         }
@@ -190,10 +238,18 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// Get all registrations (Admin) - from Excel/Google Sheets - PROTECTED
+// Get all registrations (Admin) - PROTECTED
 app.get('/api/registrations', verifyToken, async (req, res) => {
   try {
-    const registrations = await excelService.getAllRegistrations();
+    let registrations;
+    
+    // Use PostgreSQL if available, otherwise Google Sheets
+    if (process.env.DATABASE_URL) {
+      registrations = await databaseService.getAllRegistrations();
+    } else {
+      registrations = await excelService.getAllRegistrations();
+    }
+    
     res.json({ success: true, data: registrations });
   } catch (error) {
     console.error('Error fetching registrations:', error);
@@ -201,16 +257,23 @@ app.get('/api/registrations', verifyToken, async (req, res) => {
   }
 });
 
-// Get statistics (Admin) - from Google Sheets - PROTECTED
+// Get statistics (Admin) - PROTECTED
 app.get('/api/stats', verifyToken, async (req, res) => {
   try {
-    const registrations = await excelService.getAllRegistrations();
+    let stats;
     
-    const stats = {
-      total: registrations.length,
-      emailsSent: registrations.filter(r => r.email_sent === true || r['Email Sent'] === 'Yes' || r.emailSent === true).length,
-      smsSent: registrations.filter(r => r.sms_sent === true || r['SMS Sent'] === 'Yes' || r.smsSent === true).length
-    };
+    // Use PostgreSQL if available, otherwise calculate from Google Sheets
+    if (process.env.DATABASE_URL) {
+      stats = await databaseService.getStatistics();
+    } else {
+      const registrations = await excelService.getAllRegistrations();
+      stats = {
+        total: registrations.length,
+        emailSent: registrations.filter(r => r.email_sent === true || r['Email Sent'] === 'Yes' || r.emailSent === true).length,
+        smsSent: registrations.filter(r => r.sms_sent === true || r['SMS Sent'] === 'Yes' || r.smsSent === true).length,
+        today: 0 // Not easily calculable from sheets
+      };
+    }
     
     res.json({ success: true, data: stats });
   } catch (error) {
@@ -219,14 +282,21 @@ app.get('/api/stats', verifyToken, async (req, res) => {
   }
 });
 
-// Get ticket details - from Google Sheets
+// Get ticket details
 app.get('/api/ticket/:ticketId', async (req, res) => {
   try {
     const { ticketId } = req.params;
-    const registrations = await excelService.getAllRegistrations();
-    const ticket = registrations.find(r => 
-      (r.ticket_id === ticketId || r['Ticket ID'] === ticketId || r.ticketId === ticketId)
-    );
+    let ticket;
+    
+    // Use PostgreSQL if available, otherwise Google Sheets
+    if (process.env.DATABASE_URL) {
+      ticket = await databaseService.getRegistrationByTicketId(ticketId);
+    } else {
+      const registrations = await excelService.getAllRegistrations();
+      ticket = registrations.find(r => 
+        (r.ticket_id === ticketId || r['Ticket ID'] === ticketId || r.ticketId === ticketId)
+      );
+    }
     
     if (!ticket) {
       return res.status(404).json({ success: false, message: 'Ticket not found' });
