@@ -9,7 +9,7 @@ A comprehensive event registration system with email and SMS notifications.
 - ✅ SMS notifications via mNotify API
 - ✅ Google Sheets integration for data storage
 - ✅ Admin dashboard with real-time statistics
-- ✅ Automatic ticket ID generation (SMB25-XXXXXX)
+- ✅ Automatic ticket ID generation (SBM25-XXXXXX)
 - ✅ Full branding with orange/red/gold color scheme
 - ✅ Social media links in email footer
 

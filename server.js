@@ -110,9 +110,9 @@ app.post('/api/register', async (req, res) => {
       });
     }
 
-    // Generate unique ticket ID (SMB25-XXXXXX format)
+    // Generate unique ticket ID (SBM25-XXXXXX format)
     const randomNumber = Math.floor(100000 + Math.random() * 900000); // 6-digit number
-    const ticketId = `SMB25-${randomNumber}`;
+    const ticketId = `SBM25-${randomNumber}`;
     const ticketDownloadUrl = `${process.env.TICKET_DOWNLOAD_BASE_URL}/${ticketId}`;
     
     const registration = {

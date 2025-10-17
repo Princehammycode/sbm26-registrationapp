@@ -78,7 +78,7 @@ const getEmailTemplate = (name, ticketCode, downloadUrl) => {
             </td>
           </tr>
         </table>
-        
+        sm
         <!-- Download Button -->
         <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
           <tr>
