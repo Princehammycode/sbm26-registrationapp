@@ -58,8 +58,8 @@ async function loadStats() {
 
     if (data.success) {
       document.getElementById('totalRegistrations').textContent = data.data.total;
-      document.getElementById('emailsSent').textContent = data.data.emailsSent;
-      document.getElementById('smsSent').textContent = data.data.smsSent;
+      document.getElementById('emailsSent').textContent = data.data.emailSent || data.data.emailsSent || 0;
+      document.getElementById('smsSent').textContent = data.data.smsSent || 0;
     }
   } catch (error) {
     console.error('Error loading stats:', error);
@@ -116,6 +116,35 @@ async function loadRegistrations() {
   }
 }
 
+// Format date for display
+function formatDate(dateString) {
+  if (!dateString) return 'N/A';
+  
+  try {
+    // Handle PostgreSQL timestamp format (with microseconds)
+    // Example: 2025-10-17 03:40:02.804803
+    const date = new Date(dateString);
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return dateString; // Return original if can't parse
+    }
+    
+    // Format: Oct 17, 2025, 3:40 AM
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch (error) {
+    console.error('Date formatting error:', error);
+    return dateString;
+  }
+}
+
 // Display registrations in table with pagination
 function displayRegistrations() {
   const tableBody = document.getElementById('tableBody');
@@ -139,7 +168,7 @@ function displayRegistrations() {
     const contact = reg.contact || reg['Contact'];
     const email = reg.email || reg['Email'];
     const location = reg.location || reg['Location'];
-    const registeredAt = reg.registered_at || reg.registeredAt || reg['Registered At'];
+    const registeredAt = reg.registration_date || reg.registered_at || reg.registeredAt || reg['Registered At'];
     const emailStatus = reg.email_sent === true || reg['Email Sent'] === 'Yes' || reg.emailSent === true;
     const smsStatus = reg.sms_sent === true || reg['SMS Sent'] === 'Yes' || reg.smsSent === true;
 
@@ -151,7 +180,7 @@ function displayRegistrations() {
         <td>${contact}</td>
         <td>${email || 'N/A'}</td>
         <td>${location || 'N/A'}</td>
-        <td>${new Date(registeredAt).toLocaleString()}</td>
+        <td>${formatDate(registeredAt)}</td>
         <td>
           <span class="status-badge ${emailStatus ? 'success' : 'failed'}">
             ${emailStatus ? '✓ Sent' : '✗ Not Sent'}
@@ -295,7 +324,7 @@ function exportToExcel() {
     'Contact': reg.contact,
     'Email': reg.email || 'N/A',
     'Location': reg.location || 'N/A',
-    'Registered At': new Date(reg.registered_at || reg.registeredAt).toLocaleString(),
+    'Registered At': formatDate(reg.registration_date || reg.registered_at || reg.registeredAt),
     'Email Sent': (reg.email_sent || reg.emailSent) ? 'Yes' : 'No',
     'SMS Sent': (reg.sms_sent || reg.smsSent) ? 'Yes' : 'No'
   }));
