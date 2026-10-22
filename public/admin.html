@@ -1,130 +1,342 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - HHC-SBM</title>
+  <title>Admin Dashboard | SBM 2026</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    referrerpolicy="no-referrer">
+  <link rel="icon" type="image/png" href="images/logo.png">
+  <link rel="apple-touch-icon" href="images/logo.png">
   <link rel="stylesheet" href="css/admin.css">
 </head>
+
 <body>
-  <div class="dashboard-container">
-    <header class="dashboard-header">
-      <div class="header-content">
-        <h1>HHC-SBM Admin Dashboard</h1>
-        <div class="header-actions">
-          <button onclick="refreshData()" class="refresh-btn">
-            <span class="refresh-icon">↻</span> Refresh
-          </button>
-          <button onclick="logout()" class="logout-btn">
-            🚪 Logout
-          </button>
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="grain"></div>
+  </div>
+
+  <div class="page-wrap">
+    <header class="admin-header">
+      <div class="admin-header-inner">
+        <div class="admin-brand">
+          <div class="admin-logo-badge">
+            <img src="images/logo.png" alt="SBM 2026 Logo" class="brand-logo-img">
+          </div>
+          <div class="admin-brand-text">
+            <p class="admin-eyebrow">HOLY HILL CHAPEL</p>
+            <h1 class="admin-title">Registrations Dashboard <span class="year">2026</span></h1>
+          </div>
+        </div>
+        <div class="admin-user-actions">
+          <div class="admin-user-info-group">
+            <div class="admin-live-badge">
+              <span class="pulse-dot"></span>
+              <span>Live System</span>
+            </div>
+            <div class="user-profile-badge">
+              <div class="user-avatar">A</div>
+              <div class="user-meta">
+                <span class="user-name">Admin Portal</span>
+                <span class="user-role">Super Admin</span>
+              </div>
+            </div>
+          </div>
+          <div class="admin-user-btns-group">
+            <a href="/newconverts" target="_blank" class="nav-altar-btn" title="Open Altar Call Form in new tab">
+              <i class="fa-solid fa-plus"></i>
+              <span>New Converts Form</span>
+            </a>
+            <button type="button" class="logout-btn" id="logoutBtn" title="Sign out of Admin Portal">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>
 
-    <main class="dashboard-main">
-      <!-- Statistics Cards -->
-      <section class="stats-section">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <span>👥</span>
-          </div>
-          <div class="stat-content">
-            <h3>Total Registrations</h3>
-            <p class="stat-number" id="totalRegistrations">0</p>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-            <span>📧</span>
-          </div>
-          <div class="stat-content">
-            <h3>Emails Sent</h3>
-            <p class="stat-number" id="emailsSent">0</p>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-            <span>📱</span>
-          </div>
-          <div class="stat-content">
-            <h3>SMS Sent</h3>
-            <p class="stat-number" id="smsSent">0</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Search and Filter -->
-      <section class="controls-section">
-        <div class="search-box">
-          <input 
-            type="text" 
-            id="searchInput" 
-            placeholder="Search by name, contact, email..."
-            onkeyup="filterTable()"
-          >
-        </div>
-        <button onclick="exportToExcel()" class="export-btn">
-          📊 Export to Excel
+    <main class="admin-main">
+      <!-- Tab Navigation Switcher -->
+      <nav class="admin-tab-nav" role="tablist">
+        <button type="button" class="tab-btn active" id="tabRegistrations" data-view="registrations" role="tab"
+          aria-selected="true">
+          <i class="fa-solid fa-users"></i>
+          <span>Attendee Registrations</span>
+          <span class="tab-badge" id="tabRegCount">0</span>
         </button>
+        <button type="button" class="tab-btn" id="tabNewConverts" data-view="newconverts" role="tab"
+          aria-selected="false">
+          <i class="fa-solid fa-cross"></i>
+          <span>New Converts (Altar Call)</span>
+          <span class="tab-badge" id="tabConvertCount">0</span>
+        </button>
+      </nav>
+
+      <!-- Stats Grid -->
+      <section class="stats-grid" id="statsGrid">
+        <div class="stat-card" id="statCard1">
+          <div class="stat-icon-circle grad-pink">
+            <i class="fa-solid fa-users" id="statIcon1"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-number" id="statVal1">0</span>
+            <span class="stat-label" id="statLabel1">Total Registrations</span>
+            <span class="stat-hint ok" id="statHint1"><i class="fa-solid fa-circle-check"></i> Live database</span>
+          </div>
+        </div>
+
+        <div class="stat-card" id="statCard2">
+          <div class="stat-icon-circle grad-purple">
+            <i class="fa-solid fa-comment-sms" id="statIcon2"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-number" id="statVal2">0</span>
+            <span class="stat-label" id="statLabel2">SMS Sent</span>
+            <span class="stat-hint ok" id="statHint2"><i class="fa-solid fa-paper-plane"></i> Instant SMS</span>
+          </div>
+        </div>
+
+        <div class="stat-card" id="statCard3">
+          <div class="stat-icon-circle grad-blue">
+            <i class="fa-solid fa-envelope-circle-check" id="statIcon3"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-number" id="statVal3">0</span>
+            <span class="stat-label" id="statLabel3">Emails Delivered</span>
+            <span class="stat-hint ok" id="statHint3"><i class="fa-solid fa-inbox"></i> E-Ticket copies</span>
+          </div>
+        </div>
+
+        <div class="stat-card" id="statCard4">
+          <div class="stat-icon-circle grad-amber">
+            <i class="fa-solid fa-calendar-day" id="statIcon4"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-number" id="statVal4">0</span>
+            <span class="stat-label" id="statLabel4">Today's Entries</span>
+            <span class="stat-hint live" id="statHint4"><i class="fa-solid fa-bolt"></i> Real-time</span>
+          </div>
+        </div>
       </section>
 
-      <!-- Registrations Table -->
-      <section class="table-section">
-        <div class="table-container">
-          <table id="registrationsTable">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Ticket ID</th>
-                <th>Name</th>
-                <th>Contact</th>
-                <th>Email</th>
-                <th>Location</th>
-                <th>Registered At</th>
-                <th>Email Sent</th>
-                <th>SMS Sent</th>
-              </tr>
+      <!-- Toolbar -->
+      <section class="toolbar">
+        <div class="toolbar-left">
+          <div class="search-box-wrap">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="searchInput" class="search-input"
+              placeholder="Search by name, phone, ticket ID, status, location..." autocomplete="off">
+            <button type="button" class="search-clear-btn" id="searchClearBtn" title="Clear search"
+              style="display: none;">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <!-- Contact Deduplication Filter Dropdown -->
+          <div class="toolbar-dropdown-wrap" id="filterDropdownWrap">
+            <button type="button" class="toolbar-dropdown-btn" id="filterDropdownBtn" aria-haspopup="true"
+              aria-expanded="false" title="Filter by contact uniqueness">
+              <i class="fa-solid fa-filter" id="filterDropdownIcon"></i>
+              <span class="dropdown-selected-text" id="filterDropdownLabel">All Headcount</span>
+              <span class="pill-count" id="filterDropdownCount">0</span>
+              <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
+            </button>
+            <div class="toolbar-dropdown-menu" id="filterDropdownMenu" role="menu">
+              <button type="button" class="dropdown-item active" data-filter="all" role="menuitem">
+                <div class="dropdown-item-info">
+                  <i class="fa-solid fa-users"></i>
+                  <span>All Headcount</span>
+                </div>
+                <span class="pill-count" id="countFilterAll">0</span>
+              </button>
+              <button type="button" class="dropdown-item" data-filter="unique" role="menuitem">
+                <div class="dropdown-item-info">
+                  <i class="fa-solid fa-address-book"></i>
+                  <span>Unique Contacts</span>
+                </div>
+                <span class="pill-count" id="countFilterUnique">0</span>
+              </button>
+              <button type="button" class="dropdown-item" data-filter="shared" role="menuitem">
+                <div class="dropdown-item-info">
+                  <i class="fa-solid fa-people-group"></i>
+                  <span>Shared Numbers</span>
+                </div>
+                <span class="pill-count" id="countFilterShared">0</span>
+              </button>
+            </div>
+          </div>
+          <!-- Clear All Active Filters Button (appears right next to headcount filter on the same line) -->
+          <button type="button" class="btn btn-clear-filters" id="clearAllFiltersBtn"
+            title="Clear all active search, date and contact filters" style="display: none;">
+            <i class="fa-solid fa-filter-circle-xmark"></i>
+            <span>Clear</span>
+          </button>
+        </div>
+        <div class="toolbar-right">
+          <!-- Date Filter Control -->
+          <div class="date-filter-wrap" id="dateFilterWrap" title="Filter records by date">
+            <i class="fa-regular fa-calendar-days date-filter-icon"></i>
+            <input type="date" id="dateFilter" class="date-filter-input" aria-label="Filter records by date">
+            <button type="button" class="date-clear-btn" id="dateClearBtn" title="Clear date filter"
+              style="display: none;">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <label class="auto-refresh-toggle" title="Toggle real-time auto refresh (every 15s)">
+            <input type="checkbox" id="autoRefresh" checked>
+            <span class="toggle-track">
+              <span class="toggle-thumb"></span>
+            </span>
+            <span class="toggle-label">Auto-Refresh</span>
+          </label>
+          <button type="button" class="btn btn-ghost" id="manualRefreshBtn" onclick="refreshData()"
+            title="Refresh records">
+            <i class="fa-solid fa-rotate" id="refreshIcon"></i>
+            <span>Refresh</span>
+          </button>
+
+          <!-- Export Dropdown -->
+          <div class="toolbar-dropdown-wrap export-dropdown-wrap" id="exportDropdownWrap">
+            <button type="button" class="btn btn-primary export-trigger-btn" id="exportDropdownBtn" aria-haspopup="true"
+              aria-expanded="false" title="Export options">
+              <i class="fa-solid fa-file-csv"></i>
+              <span id="exportDropdownLabel">Export (CSV)</span>
+              <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
+            </button>
+            <div class="toolbar-dropdown-menu export-dropdown-menu right-aligned" id="exportDropdownMenu" role="menu">
+              <button type="button" class="dropdown-item" id="exportCurrentViewBtn" role="menuitem">
+                <div class="dropdown-item-info">
+                  <i class="fa-solid fa-file-export"></i>
+                  <div class="item-text-wrap">
+                    <strong class="item-title">Export Current View</strong>
+                    <small class="item-desc">Exports records currently filtered/searched</small>
+                  </div>
+                </div>
+              </button>
+              <button type="button" class="dropdown-item highlight-pink" id="exportUniqueSmsBtn" role="menuitem">
+                <div class="dropdown-item-info">
+                  <i class="fa-solid fa-bullhorn text-pink"></i>
+                  <div class="item-text-wrap">
+                    <strong class="item-title text-pink">Export Unique Contacts (SMS)</strong>
+                    <small class="item-desc">Deduplicated phone numbers for Bulk SMS</small>
+                  </div>
+                </div>
+              </button>
+              <button type="button" class="dropdown-item" id="exportMasterListBtn" role="menuitem">
+                <div class="dropdown-item-info">
+                  <i class="fa-solid fa-database"></i>
+                  <div class="item-text-wrap">
+                    <strong class="item-title">Export Full Master List</strong>
+                    <small class="item-desc">Complete database records</small>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Data Table Card -->
+      <section class="table-card">
+        <div class="table-card-head">
+          <div>
+            <h2 class="table-title" id="tableCardTitle">Attendee Registrations</h2>
+            <p class="table-subtitle" id="tableCardSubtitle">View ticket details, membership category, SMS/Email
+              delivery, and export data.</p>
+          </div>
+          <div class="table-badge-chip">
+            <span class="chip-dot"></span>
+            <span id="totalEntriesLabel">0 entries</span>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="regs-table" id="dataTable">
+            <thead id="tableHead">
+              <!-- Dynamically populated by active view -->
             </thead>
             <tbody id="tableBody">
-              <tr>
-                <td colspan="9" class="loading">Loading registrations...</td>
+              <tr class="skeleton-row">
+                <td colspan="10">
+                  <div class="shimmer-box shimmer-1"></div>
+                </td>
+              </tr>
+              <tr class="skeleton-row">
+                <td colspan="10">
+                  <div class="shimmer-box shimmer-2"></div>
+                </td>
+              </tr>
+              <tr class="skeleton-row">
+                <td colspan="10">
+                  <div class="shimmer-box shimmer-3"></div>
+                </td>
               </tr>
             </tbody>
           </table>
+
+          <div class="empty-state hidden" id="emptyState">
+            <div class="empty-icon">
+              <i class="fa-solid fa-clipboard-question"></i>
+            </div>
+            <h3 class="empty-title" id="emptyTitle">No records found</h3>
+            <p class="empty-desc" id="emptyDesc">No matching records found. Try adjusting your search query or
+              refreshing the table.</p>
+            <button type="button" class="btn btn-ghost" onclick="refreshData()">
+              <i class="fa-solid fa-rotate"></i> Refresh Data
+            </button>
+          </div>
         </div>
-        
+
         <!-- Pagination Controls -->
-        <div class="pagination-container">
+        <div class="pagination-wrap">
           <div class="pagination-info">
-            <span id="paginationInfo">Showing 0 - 0 of 0 entries</span>
+            <span id="paginationInfo">Showing 0 – 0 of 0 entries</span>
           </div>
           <div class="pagination-controls">
-            <button onclick="goToFirstPage()" id="firstPageBtn" class="pagination-btn" disabled>⟪ First</button>
-            <button onclick="previousPage()" id="prevPageBtn" class="pagination-btn" disabled>‹ Previous</button>
-            <span id="pageNumbers" class="page-numbers"></span>
-            <button onclick="nextPage()" id="nextPageBtn" class="pagination-btn" disabled>Next ›</button>
-            <button onclick="goToLastPage()" id="lastPageBtn" class="pagination-btn" disabled>Last ⟫</button>
+            <button type="button" class="page-btn" id="firstPageBtn" onclick="goToFirstPage()" title="First Page">
+              <i class="fa-solid fa-angles-left"></i>
+              <span class="page-btn-label">First</span>
+            </button>
+            <button type="button" class="page-btn" id="prevPageBtn" onclick="previousPage()" title="Previous Page">
+              <i class="fa-solid fa-angle-left"></i>
+              <span class="page-btn-label">Prev</span>
+            </button>
+            <div class="page-numbers" id="pageNumbers"></div>
+            <button type="button" class="page-btn" id="nextPageBtn" onclick="nextPage()" title="Next Page">
+              <span class="page-btn-label">Next</span>
+              <i class="fa-solid fa-angle-right"></i>
+            </button>
+            <button type="button" class="page-btn" id="lastPageBtn" onclick="goToLastPage()" title="Last Page">
+              <span class="page-btn-label">Last</span>
+              <i class="fa-solid fa-angles-right"></i>
+            </button>
           </div>
         </div>
       </section>
     </main>
+  </div>
 
-    <footer class="dashboard-footer">
-      <p>HHC-SBM Registration System &copy; 2025</p>
-    </footer>
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <i class="toast-icon fa-solid fa-circle-info"></i>
+    <span class="toast-message"></span>
   </div>
 
   <script src="js/config.js"></script>
-  <script src="js/admin.js"></script>
   <script src="js/auth.js"></script>
-  <script>
-    // Check authentication after scripts load
-    if (!checkAuth()) {
-      // Will redirect to login if not authenticated
-    }
-  </script>
+  <script src="js/admin.js"></script>
 </body>
+
 </html>

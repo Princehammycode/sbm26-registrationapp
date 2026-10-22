@@ -19,11 +19,17 @@ async function initGoogleSheets() {
 
     let credentials;
 
-    // Check if credentials are provided as base64 environment variable (for deployment)
+    // Check if credentials are provided via environment variables or secret files (for deployment)
     if (process.env.GOOGLE_CREDENTIALS_BASE64) {
-      console.log('📄 Loading Google credentials from environment variable');
+      console.log('📄 Loading Google credentials from GOOGLE_CREDENTIALS_BASE64');
       const credentialsJson = Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('utf8');
       credentials = JSON.parse(credentialsJson);
+    } else if (process.env.GOOGLE_CREDENTIALS_JSON) {
+      console.log('📄 Loading Google credentials from GOOGLE_CREDENTIALS_JSON');
+      credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+    } else if (fs.existsSync('/etc/secrets/google-credentials.json')) {
+      console.log('📄 Loading Google credentials from Render Secret File (/etc/secrets/google-credentials.json)');
+      credentials = JSON.parse(fs.readFileSync('/etc/secrets/google-credentials.json', 'utf8'));
     } else {
       // Check if credentials file exists (for local development)
       const credentialsPath = path.join(__dirname, '..', 'google-credentials.json');

@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: hhc-sbm-registration
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sbm-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SESSION_TIMEOUT
+        value: "21600000"
+      - key: USE_GOOGLE_SHEETS
+        value: "true"
+      - key: MNOTIFY_SENDER_ID
+        value: HHC-SBM2025
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_FROM_EMAIL
+        sync: false
+      - key: MNOTIFY_API_KEY
+        sync: false
+      - key: GOOGLE_SPREADSHEET_ID
+        sync: false
+      - key: GOOGLE_CREDENTIALS_BASE64
+        sync: false
+
+databases:
+  - name: sbm-postgres
+    databaseName: sbm_records
+    user: sbm_user
+    plan: free
+    region: oregon

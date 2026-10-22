@@ -11,10 +11,18 @@ const axios = require('axios');
 async function sendRegistrationSMS(phoneNumber, name, ticketId, downloadUrl) {
   // Format phone number to ensure it's in the correct format
   const formattedPhone = formatPhoneNumber(phoneNumber);
-  
-  // Shorten message - remove URL to avoid fraud detection
-  // Users can access ticket via email or by visiting the website
-  const message = `Dear ${name}, Thank you for registering for Supernatural Breakfast Meeting 2025.\nYour TicketID is: ${ticketId}\nGod bless you and Enjoy the Service.`;
+
+  // Dynamic SMS message based on registration date
+  // Ghana uses GMT/UTC (UTC+0)
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10); // 'YYYY-MM-DD'
+  const isEventDayOrAfter = todayStr >= '2026-11-14';
+
+  const closingLine = isEventDayOrAfter
+    ? 'God bless you and Enjoy the service.'
+    : 'God bless you and see you on Sat 14th Nov 2026 at The Palms, Labadi Beach Hotel @7am.';
+
+  const message = `Dear ${name}, Thank you for registering for Supernatural Breakfast Meeting 2026.\nYour Ticket ID is: ${ticketId}\n${closingLine}`;
 
   // mNotify API payload structure
   const smsData = {
@@ -40,24 +48,24 @@ async function sendRegistrationSMS(phoneNumber, name, ticketId, downloadUrl) {
     });
 
     console.log('SMS sent successfully:', response.data);
-    
+
     // Check if the API returned success
     if (response.data && response.data.code === '2000') {
-      return { 
-        success: true, 
+      return {
+        success: true,
         message: 'SMS sent successfully',
-        response: response.data 
+        response: response.data
       };
     } else {
-      return { 
-        success: false, 
+      return {
+        success: false,
         message: response.data?.message || 'Failed to send SMS',
-        response: response.data 
+        response: response.data
       };
     }
   } catch (error) {
     console.error('SMS sending error:', error.response?.data || error.message);
-    
+
     return {
       success: false,
       message: error.response?.data?.message || error.message,
@@ -74,17 +82,17 @@ async function sendRegistrationSMS(phoneNumber, name, ticketId, downloadUrl) {
 function formatPhoneNumber(phoneNumber) {
   // Remove all spaces, dashes, and plus signs
   let cleaned = phoneNumber.replace(/[\s\-+]/g, '');
-  
+
   // If number starts with 0, replace with 233 (Ghana country code)
   if (cleaned.startsWith('0')) {
     cleaned = '233' + cleaned.substring(1);
   }
-  
+
   // If number doesn't start with 233, add it
   if (!cleaned.startsWith('233')) {
     cleaned = '233' + cleaned;
   }
-  
+
   return cleaned;
 }
 
@@ -95,7 +103,7 @@ function formatPhoneNumber(phoneNumber) {
  */
 async function sendBulkRegistrationSMS(recipients) {
   const results = [];
-  
+
   for (const recipient of recipients) {
     try {
       const result = await sendRegistrationSMS(
@@ -108,7 +116,7 @@ async function sendBulkRegistrationSMS(recipients) {
         phoneNumber: recipient.phoneNumber,
         ...result
       });
-      
+
       // Add small delay between requests to avoid rate limiting
       await new Promise(resolve => setTimeout(resolve, 500));
     } catch (error) {
@@ -119,7 +127,7 @@ async function sendBulkRegistrationSMS(recipients) {
       });
     }
   }
-  
+
   return results;
 }
 

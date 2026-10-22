@@ -3,55 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login - HHC-SBM</title>
+  <title>Admin Login | SBM 2026</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    referrerpolicy="no-referrer"
+  >
+  <link rel="icon" type="image/png" href="images/logo.png">
+  <link rel="apple-touch-icon" href="images/logo.png">
   <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
-  <div class="login-container">
-    <div class="login-card">
-      <div class="login-header">
-        <h1>HHC-SBM</h1>
-        <h2>Admin Login</h2>
-      </div>
-
-      <form id="loginForm" class="login-form">
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input 
-            type="text" 
-            id="username" 
-            name="username" 
-            required 
-            autocomplete="username"
-            placeholder="Enter username"
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input 
-            type="password" 
-            id="password" 
-            name="password" 
-            required 
-            autocomplete="current-password"
-            placeholder="Enter password"
-          >
-        </div>
-
-        <div id="errorMessage" class="error-message" style="display: none;"></div>
-
-        <button type="submit" id="loginBtn" class="login-btn">
-          <span id="loginBtnText">Login</span>
-          <span id="loginSpinner" class="spinner" style="display: none;">⟳</span>
-        </button>
-      </form>
-
-      <div class="login-footer">
-        <p>&copy; 2025 Holy Hill Chapel. All rights reserved.</p>
-      </div>
-    </div>
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="grain"></div>
   </div>
+
+  <div class="page-wrap">
+    <main class="login-layout">
+      <div class="login-card">
+        <header class="login-card-head">
+          <div class="login-brand">
+            <div class="logo-badge">
+              <img src="images/logo.png" alt="SBM 2026 Logo" class="brand-logo-img">
+            </div>
+            <div class="brand-text">
+              <p class="brand-eyebrow">HOLY HILL CHAPEL</p>
+              <h1 class="brand-title"><span class="year">2026</span></h1>
+            </div>
+          </div>
+        </header>
+
+        <section class="login-card-body">
+          <div class="login-welcome">
+            <h2 class="welcome-title">Admin Portal</h2>
+            <p class="welcome-subtitle">Sign in with your credentials to manage registrations and live records.</p>
+          </div>
+
+          <form id="loginForm" class="login-form" novalidate>
+            <!-- Username Input -->
+            <div class="form-group">
+              <label for="username" class="field-label">Username</label>
+              <div class="input-wrap">
+                <span class="input-icon"><i class="fa-solid fa-user"></i></span>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  required
+                  autocomplete="username"
+                  placeholder="Enter admin username"
+                >
+              </div>
+            </div>
+
+            <!-- Password Input -->
+            <div class="form-group">
+              <label for="password" class="field-label">Password</label>
+              <div class="input-wrap">
+                <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  required
+                  autocomplete="current-password"
+                  placeholder="Enter admin password"
+                >
+                <button type="button" class="toggle-password" id="togglePassword" aria-label="Toggle password visibility">
+                  <i class="fa-solid fa-eye" id="toggleIcon"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Error Banner -->
+            <div id="errorMessage" class="error-banner" style="display: none;">
+              <i class="fa-solid fa-circle-exclamation err-icon"></i>
+              <span class="err-text">Invalid username or password</span>
+            </div>
+
+            <div class="submit-wrap">
+              <button type="submit" id="loginBtn" class="submit-btn">
+                <span class="btn-default" id="loginBtnText">
+                  <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                  Sign In to Dashboard
+                </span>
+                <span class="btn-loading" id="loginSpinner" style="display: none;">
+                  <i class="fa-solid fa-spinner fa-spin"></i>
+                  Authenticating...
+                </span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <footer class="login-card-foot">
+          <div class="foot-links">
+            <a href="/register" class="foot-link">
+              <i class="fa-solid fa-arrow-left"></i>
+              Attendee Registration
+            </a>
+          </div>
+          <p class="copyright-text">
+            &copy; 2026 Holy Hill Chapel &middot; SBM 2026 Admin
+          </p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.getElementById('togglePassword').addEventListener('click', function () {
+      const pwd = document.getElementById('password');
+      const icon = document.getElementById('toggleIcon');
+      if (pwd.type === 'password') {
+        pwd.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        pwd.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    });
+  </script>
 
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>

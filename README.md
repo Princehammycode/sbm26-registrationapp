@@ -117,13 +117,16 @@ Access the admin dashboard at `/admin-dashboard` to view:
 - SMS delivery status
 - Complete participant list
 
-## QR Code Generation
+## Event Conclusion & Closed Page (Post-Program)
 
-To create QR codes for the registration page:
-1. Use any QR code generator (e.g., qr-code-generator.com)
-2. Enter your GitHub Pages URL
-3. Download and print for Android/iPhone scanning
+The application automatically closes registrations starting **November 15, 2026** (or when `EVENT_REGISTRATION_CLOSED=true` is set). Any attempts to access `/register`, `/`, or `/newconverts` will automatically redirect attendees to a branded Thank You page.
+
+### Admin Form Preview (Anytime):
+You or administrators can always preview the closed page directly at: 👉 [http://localhost:3001/closed](http://localhost:3001/closed)
+
+If after November 15th you ever need to inspect or preview the active forms, you can append `?preview=form` (e.g. `/register?preview=form` or `/newconverts?preview=form`).
 
 ## Support
 
 For issues or questions, contact the development team.
+

@@ -2,41 +2,231 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Download Ticket - HHC-SBM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#2b2b2e">
+  <title>My SBM 2026 Ticket</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="images/logo.png">
+  <link rel="apple-touch-icon" href="images/logo.png">
   <link rel="stylesheet" href="css/ticket.css">
+  <script src="js/config.js"></script>
+  <script src="js/ticket.js" defer></script>
 </head>
 <body>
-  <div class="container">
-    <div class="ticket-card" id="ticketCard">
-      <div class="ticket-header">
-        <h1>HHC-SBM</h1>
-        <h2>Event Ticket</h2>
-      </div>
-
-      <div id="ticketContent" class="ticket-content">
-        <div class="loading">
-          <div class="spinner"></div>
-          <p>Loading your ticket...</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="actions" id="actions" style="display: none;">
-      <button onclick="downloadTicket()" class="action-btn primary">
-        📥 Download Ticket
-      </button>
-      <button onclick="window.print()" class="action-btn secondary">
-        🖨️ Print Ticket
-      </button>
-    </div>
-
-    <div class="footer">
-      <p>HHC-SBM Event Registration System</p>
-    </div>
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
   </div>
 
-  <script src="js/config.js"></script>
-  <script src="js/ticket.js"></script>
+  <div class="page-wrap">
+    <nav class="top-nav ticket-animate" style="--delay: 0ms;">
+      <div class="nav-brand">
+        <div class="logo-badge">
+          <img src="images/logo.png" alt="SBM 2026 Logo" class="brand-logo-img">
+        </div>
+        <div class="nav-text">
+          <p class="brand-eyebrow">HOLY HILL CHAPEL</p>
+          <h1 class="nav-title">2026</h1>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <button id="downloadBtn" class="btn btn-ghost" type="button">
+          <i class="fa-solid fa-file-arrow-down"></i>
+          <span>Download</span>
+        </button>
+        <button id="printBtn" class="btn btn-primary" type="button">
+          <i class="fa-solid fa-print"></i>
+          <span>Print</span>
+        </button>
+      </div>
+    </nav>
+
+    <main class="ticket-main">
+      <div id="loadingState" class="state-panel ticket-animate" style="--delay: 80ms;">
+        <div class="state-icon loading-icon">
+          <i class="fa-solid fa-spinner fa-spin-pulse"></i>
+        </div>
+        <h2 class="state-title">Loading your ticket...</h2>
+        <p class="state-sub">Retrieving your SBM 2026 registration details</p>
+      </div>
+
+      <div id="errorState" class="state-panel ticket-animate hidden" style="--delay: 80ms;">
+        <div class="state-icon error-icon">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h2 class="state-title">Ticket Not Found</h2>
+        <p class="state-sub">We couldn't locate your ticket. Please check your ticket ID or try registering again.</p>
+        <div class="state-actions">
+          <button id="retryBtn" class="btn btn-primary" type="button">
+            <i class="fa-solid fa-rotate-right"></i>
+            <span>Retry</span>
+          </button>
+          <a href="index.html" class="btn btn-ghost">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Back to Register</span>
+          </a>
+        </div>
+      </div>
+
+      <article id="ticketCard" class="ticket-card hidden">
+        <div class="ticket-section ticket-head ticket-animate" style="--delay: 0ms;">
+          <div class="ticket-eyebrow">
+            <i class="fa-solid fa-ticket-simple"></i>
+            <span>E-TICKET</span>
+          </div>
+          <div class="ticket-logo">
+            <div class="ticket-logo-badge">
+              <img src="images/logo.png" alt="SBM 2026 Logo" class="brand-logo-img">
+            </div>
+            <div class="ticket-logo-text">
+              <h3>HOLY HILL CHAPEL</h3>
+              <p>Supernatural Breakfast Meeting 2026</p>
+            </div>
+          </div>
+          <div class="ticket-qr-icon">
+            <i class="fa-solid fa-qrcode"></i>
+          </div>
+        </div>
+
+        <div class="ticket-section ticket-code-section ticket-animate" style="--delay: 60ms;">
+          <p class="ticket-code-label">Ticket ID</p>
+          <div id="ticketCode" class="ticket-code">SBM26-XXXXXX</div>
+          <button id="copyTicketId" class="copy-btn" type="button" title="Copy Ticket ID">
+            <i class="fa-regular fa-copy copy-icon"></i>
+            <i class="fa-solid fa-check check-icon"></i>
+            <span>Copy ID</span>
+          </button>
+        </div>
+
+        <div class="ticket-section ticket-info-section ticket-animate" style="--delay: 120ms;">
+          <h4 class="section-title">Registrant Information</h4>
+          <div class="info-grid">
+            <div class="info-row">
+              <div class="info-icon"><i class="fa-solid fa-user"></i></div>
+              <div class="info-detail">
+                <p class="info-label">Full Name</p>
+                <p id="infoName" class="info-value">—</p>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-icon"><i class="fa-solid fa-phone"></i></div>
+              <div class="info-detail">
+                <p class="info-label">Contact Number</p>
+                <p id="infoContact" class="info-value">—</p>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-icon"><i class="fa-solid fa-location-dot"></i></div>
+              <div class="info-detail">
+                <p class="info-label">Location</p>
+                <p id="infoLocation" class="info-value">—</p>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-icon"><i class="fa-solid fa-envelope"></i></div>
+              <div class="info-detail">
+                <p class="info-label">Email Address</p>
+                <p id="infoEmail" class="info-value">—</p>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-icon"><i class="fa-solid fa-calendar"></i></div>
+              <div class="info-detail">
+                <p class="info-label">Registered At</p>
+                <p id="infoRegistered" class="info-value">—</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-section ticket-event-card ticket-animate" style="--delay: 180ms;">
+          <h4 class="section-title">Event Details</h4>
+          <div class="event-grid">
+            <div class="event-item">
+              <div class="event-icon"><i class="fa-solid fa-calendar-days"></i></div>
+              <div class="event-text">
+                <p class="event-label">Date</p>
+                <p class="event-value">Saturday, November 14, 2026</p>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-icon"><i class="fa-solid fa-clock"></i></div>
+              <div class="event-text">
+                <p class="event-label">Time</p>
+                <p class="event-value">7:00 AM (Prompt)</p>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-icon"><i class="fa-solid fa-location-pin"></i></div>
+              <div class="event-text">
+                <p class="event-label">Venue</p>
+                <p class="event-value">The Palms, Labadi Beach Hotel, Accra</p>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-icon"><i class="fa-solid fa-hands-praying"></i></div>
+              <div class="event-text">
+                <p class="event-label">Host</p>
+                <p class="event-value">Rev. Dr. Kwadwo Bempah</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-section ticket-quote-box ticket-animate" style="--delay: 240ms;">
+          <i class="fa-solid fa-sparkles quote-icon"></i>
+          <blockquote class="quote-text">Theme Coming Soon</blockquote>
+          <cite class="quote-ref">&mdash; Anticipate a Divine Encounter &middot; SBM 2026</cite>
+        </div>
+
+        <div class="ticket-stub">
+          <div class="stub-perforation"></div>
+        </div>
+
+        <div class="ticket-section ticket-stub-section ticket-animate" style="--delay: 300ms;">
+          <div class="stub-content">
+            <div class="qr-block">
+              <img id="qrImage" src="" alt="QR Code" class="qr-image">
+              <p class="qr-caption">Scan at gate entry</p>
+            </div>
+            <div class="stub-details">
+              <div class="stub-code" id="stubTicketCode">SBM26-XXXXXX</div>
+              <p class="stub-note">
+                <i class="fa-solid fa-circle-info"></i>
+                This ticket is non-transferable. Present this e-ticket (printed or digital) along with a valid ID at the registration counter for verification.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-section ticket-foot ticket-animate" style="--delay: 360ms;">
+          <p class="foot-notice">
+            <i class="fa-solid fa-shield-halved"></i>
+            Gate staff may verify ticket authenticity by scanning the QR code or checking the Ticket ID against our attendee registry.
+          </p>
+          <div class="foot-row">
+            <p class="foot-copy">Holy Hill Chapel &copy; 2026. All rights reserved.</p>
+            <div class="foot-socials">
+              <a href="https://www.facebook.com/holyhill.chapel.1" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+              <a href="https://www.instagram.com/holyhillchapelag?igshid=YmMyMTA2M2Y=" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+              <a href="https://www.youtube.com/@HolyHillChapelAG" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+              <a href="https://twitter.com/holyhillag?s=21&t=1JwTZBP4lyQ0vp-04e7pPg" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <div class="back-link ticket-animate" style="--delay: 420ms;">
+        <a href="index.html">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Back to Registration</span>
+        </a>
+      </div>
+    </main>
+  </div>
 </body>
 </html>

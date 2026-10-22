@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS registrations (
   name VARCHAR(255) NOT NULL,
   contact VARCHAR(50) NOT NULL,
   location VARCHAR(255),
+  member_status VARCHAR(100),
   email VARCHAR(255),
   registered_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   email_sent BOOLEAN DEFAULT FALSE,

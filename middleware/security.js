@@ -58,10 +58,8 @@ const registrationValidation = [
   
   body('contact')
     .trim()
-    .matches(/^[0-9+\s()-]+$/)
-    .withMessage('Invalid phone number format')
-    .isLength({ min: 10, max: 15 })
-    .withMessage('Phone number must be between 10 and 15 digits'),
+    .matches(/^[0-9]{10}$/)
+    .withMessage('Phone number must be exactly 10 digits (e.g. 0244123456)'),
   
   body('email')
     .optional({ checkFalsy: true })
@@ -70,6 +68,12 @@ const registrationValidation = [
     .withMessage('Invalid email format')
     .normalizeEmail(),
   
+  body('memberStatus')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Attendee status must be less than 100 characters'),
+
   body('location')
     .optional({ checkFalsy: true })
     .trim()
