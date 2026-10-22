@@ -155,7 +155,7 @@ function generateTicketPDF(registration) {
   drawRow('⏰', 'Time', '7:00 AM (Prompt)', eventCardY + 54);
   drawRow('📍', 'Venue', 'The Palms, Labadi Beach Hotel, Accra', eventCardY + 78);
   drawRow('🎙️', 'Host', 'Rev. Dr. Kwadwo Bempah', eventCardY + 102);
-  drawRow('✨', 'Theme', 'Anticipate a Divine Encounter', eventCardY + 126);
+  drawRow('✨', 'Theme', 'Nothing is Impossible with Faith (Mark 9:23)', eventCardY + 126);
 
   y += eventCardH + 14;
 

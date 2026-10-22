@@ -64,52 +64,67 @@
 
 body {
   font-family: var(--font-body);
-  background:
-    radial-gradient(1000px 600px at 15% 5%, rgba(225, 29, 72, 0.07) 0%, transparent 60%),
-    radial-gradient(800px 500px at 85% 15%, rgba(100, 116, 139, 0.09) 0%, transparent 55%),
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  background-color: #07090e;
   color: var(--ash-950);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
+/* ============================================
+   BACKGROUND ATMOSPHERE WITH SBM FLYER
+   Professional Dark Blurred Overlay
+   ============================================ */
 .bg-orbs {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
+  background-color: #0b0f19;
+}
+
+.bg-orbs::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('../images/sbm-flyer26.jpg');
+  background-size: cover;
+  background-position: center 20%;
+  background-repeat: no-repeat;
+  filter: saturate(1.06) brightness(0.96);
+  transform: none;
+  will-change: transform;
+}
+
+.bg-orbs::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Balanced translucent dark overlay (NO blur) for razor-sharp flyer details */
+  background: 
+    radial-gradient(
+      ellipse at 50% 25%,
+      rgba(15, 23, 42, 0.35) 0%,
+      rgba(10, 15, 26, 0.55) 60%,
+      rgba(7, 10, 19, 0.70) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(136, 19, 55, 0.16) 0%,
+      rgba(15, 23, 42, 0.40) 100%
+    );
 }
 
 .orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.65;
-  animation: floatOrb 20s infinite ease-in-out;
-}
-
-.orb-1 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(244, 63, 94, 0.12) 0%, transparent 70%);
-  top: -120px;
-  left: -80px;
-}
-
-.orb-2 {
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, rgba(148, 163, 184, 0.16) 0%, transparent 70%);
-  bottom: 0%;
-  right: -60px;
+  display: none;
 }
 
 .grain {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(rgba(15, 23, 42, 0.015) 1px, transparent 1px);
-  background-size: 4px 4px;
+  z-index: 1;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 .page-wrap {
@@ -131,11 +146,13 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 18px;
+  padding: 8px 20px;
   border-radius: var(--radius-pill);
-  background: #ffffff;
-  border: 1.5px solid var(--ash-300);
-  box-shadow: var(--shadow-sm);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
 }
 
 .logo-icon {
@@ -181,11 +198,13 @@ body {
 
 /* Card */
 .form-card {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: var(--radius-xl);
-  border: 1.5px solid var(--ash-300);
-  box-shadow: var(--shadow-lg);
-  padding: 32px 36px;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.45), 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+  padding: 34px 38px;
 }
 
 .card-intro {
@@ -479,6 +498,32 @@ body {
 @keyframes countdown {
   0% { transform: scaleX(1); }
   100% { transform: scaleX(0); }
+}
+
+@media (max-width: 767px) {
+  .bg-orbs::before {
+    background-position: center top !important;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 85%, transparent 95%) !important;
+    mask-image: linear-gradient(to bottom, #000 0%, #000 85%, transparent 95%) !important;
+  }
+
+  .bg-orbs::after {
+    background: 
+      radial-gradient(
+        ellipse at 50% 25%,
+        rgba(15, 23, 42, 0.28) 0%,
+        rgba(10, 15, 26, 0.46) 65%,
+        rgba(7, 10, 19, 0.65) 86%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(136, 19, 55, 0.12) 0%,
+        rgba(15, 23, 42, 0.32) 65%,
+        rgba(7, 9, 14, 0.75) 88%,
+        #07090e 96%,
+        #07090e 100%
+      ) !important;
+  }
 }
 
 @media (max-width: 480px) {

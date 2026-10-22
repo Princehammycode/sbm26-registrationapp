@@ -709,19 +709,28 @@ app.get('/api/stats', verifyToken, async (req, res) => {
 
 app.get('/api/ticket/:ticketId', async (req, res) => {
   try {
-    const { ticketId } = req.params;
-    let ticket;
+    const ticketId = String(req.params.ticketId || '').trim();
+    let ticket = null;
+
     if (process.env.DATABASE_URL) {
       ticket = await databaseService.getRegistrationByTicketId(ticketId);
-    } else {
+      if (!ticket) {
+        const all = await databaseService.getAllRegistrations();
+        ticket = all.find(
+          (r) => String(r.ticket_id || '').toLowerCase() === ticketId.toLowerCase()
+        );
+      }
+    }
+
+    if (!ticket) {
       const registrations = await excelService.getAllRegistrations();
       ticket = registrations.find(
         (r) =>
-          r.ticket_id === ticketId ||
-          r['Ticket ID'] === ticketId ||
-          r.ticketId === ticketId
+          String(r.ticket_id || r['Ticket ID'] || r.ticketId || '').toLowerCase() ===
+          ticketId.toLowerCase()
       );
     }
+
     if (!ticket) {
       return res
         .status(404)
@@ -738,14 +747,28 @@ app.get('/api/ticket/:ticketId', async (req, res) => {
 
 app.get('/ticket/:ticketId', async (req, res) => {
   try {
-    const { ticketId } = req.params;
-    const registrations = await excelService.getAllRegistrations();
-    const ticket = registrations.find(
-      (r) =>
-        r.ticket_id === ticketId ||
-        r['Ticket ID'] === ticketId ||
-        r.ticketId === ticketId
-    );
+    const ticketId = String(req.params.ticketId || '').trim();
+    let ticket = null;
+
+    if (process.env.DATABASE_URL) {
+      ticket = await databaseService.getRegistrationByTicketId(ticketId);
+      if (!ticket) {
+        const all = await databaseService.getAllRegistrations();
+        ticket = all.find(
+          (r) => String(r.ticket_id || '').toLowerCase() === ticketId.toLowerCase()
+        );
+      }
+    }
+
+    if (!ticket) {
+      const registrations = await excelService.getAllRegistrations();
+      ticket = registrations.find(
+        (r) =>
+          String(r.ticket_id || r['Ticket ID'] || r.ticketId || '').toLowerCase() ===
+          ticketId.toLowerCase()
+      );
+    }
+
     if (!ticket) {
       return res
         .status(404)
@@ -804,6 +827,10 @@ app.get('/register', (req, res) => {
     return res.redirect('/closed');
   }
   res.sendFile(__dirname + '/public/index.html');
+});
+
+app.get(['/ticket', '/ticket/view', '/ticket/view/:ticketId'], (req, res) => {
+  res.sendFile(__dirname + '/public/ticket.html');
 });
 
 app.get('/admin-dashboard', (req, res) => {

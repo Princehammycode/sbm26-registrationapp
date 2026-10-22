@@ -88,13 +88,7 @@ html {
 
 body {
   font-family: var(--font-body);
-  background-color: var(--ash-bg);
-  background-image: 
-    radial-gradient(at 12% 5%, rgba(244, 63, 94, 0.11) 0px, transparent 48%),
-    radial-gradient(at 88% 8%, rgba(225, 29, 72, 0.09) 0px, transparent 42%),
-    radial-gradient(at 50% 95%, rgba(148, 163, 184, 0.16) 0px, transparent 55%),
-    linear-gradient(180deg, #edf2f7 0%, #e2e8f0 100%);
-  background-attachment: fixed;
+  background-color: #07090e;
   color: var(--ash-700);
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
@@ -107,61 +101,61 @@ body {
   display: none !important;
 }
 
-/* Background Atmosphere */
+/* ============================================
+   BACKGROUND ATMOSPHERE WITH SBM FLYER
+   Professional Dark Blurred Overlay
+   ============================================ */
 .bg-orbs {
   position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  background-color: #0b0f19;
+}
+
+.bg-orbs::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('../images/sbm-flyer26.jpg');
+  background-size: cover;
+  background-position: center 20%;
+  background-repeat: no-repeat;
+  filter: saturate(1.06) brightness(0.96);
+  transform: none;
+  will-change: transform;
+}
+
+.bg-orbs::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Balanced translucent dark overlay (NO blur) for razor-sharp flyer details */
+  background: 
+    radial-gradient(
+      ellipse at 50% 25%,
+      rgba(15, 23, 42, 0.35) 0%,
+      rgba(10, 15, 26, 0.55) 60%,
+      rgba(7, 10, 19, 0.70) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(136, 19, 55, 0.16) 0%,
+      rgba(15, 23, 42, 0.40) 100%
+    );
 }
 
 .orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(110px);
-  opacity: 0.65;
-  animation: floatOrb 20s ease-in-out infinite alternate;
-}
-
-.orb-1 {
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(254, 205, 211, 0.75) 0%, transparent 70%);
-  top: -150px;
-  left: -120px;
-}
-
-.orb-2 {
-  width: 550px;
-  height: 550px;
-  background: radial-gradient(circle, rgba(203, 213, 225, 0.85) 0%, transparent 70%);
-  bottom: -120px;
-  right: -80px;
-  animation-delay: -6s;
-}
-
-.orb-3 {
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, rgba(254, 205, 211, 0.5) 0%, transparent 70%);
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation-delay: -12s;
-}
-
-@keyframes floatOrb {
-  0%   { transform: translate(0, 0) scale(1); }
-  50%  { transform: translate(30px, -24px) scale(1.04); }
-  100% { transform: translate(-20px, 20px) scale(0.96); }
+  display: none;
 }
 
 .grain {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(rgba(15, 23, 42, 0.025) 1px, transparent 1px);
-  background-size: 20px 20px;
+  z-index: 1;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 /* ============================================
@@ -184,9 +178,16 @@ body {
 }
 
 .brand-logo {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 16px;
+  padding: 8px 22px 8px 14px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
 }
 
 .logo-badge {
@@ -281,9 +282,14 @@ body {
   justify-content: space-between;
   padding: 38px 36px;
   border-radius: var(--radius-xl);
-  background: var(--ash-surface);
-  border: 1px solid var(--ash-border);
-  box-shadow: var(--shadow-card);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 25px 60px -10px rgba(0, 0, 0, 0.5),
+    0 10px 25px -5px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.9);
   position: relative;
   overflow: hidden;
 }
@@ -389,15 +395,15 @@ body {
   color: var(--ash-900);
 }
 
-/* Theme Card */
+/* Theme Card - Professional Design */
 .theme-card {
-  padding: 20px 24px;
-  border-radius: var(--radius-md);
-  background: var(--pink-50);
-  border: 1.5px solid var(--pink-300);
+  padding: 24px 28px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #fff5f6 0%, #ffffff 52%, #fdf2f8 100%);
+  border: 1.5px solid rgba(251, 113, 133, 0.38);
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(225, 29, 72, 0.08);
+  box-shadow: 0 10px 28px -4px rgba(225, 29, 72, 0.14), 0 2px 6px rgba(15, 23, 42, 0.04);
 }
 
 .theme-card::before {
@@ -405,40 +411,55 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 4px;
+  width: 5px;
   height: 100%;
   background: var(--pink-gradient);
 }
 
 .theme-tag {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--pink-700);
-  letter-spacing: 0.2em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   font-weight: 800;
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .theme-tag i {
   color: var(--pink-600);
+  font-size: 12px;
 }
 
 .theme-text {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(21px, 2.3vw, 26px);
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: clamp(19px, 2.1vw, 24px);
   color: var(--ash-900);
-  margin-bottom: 4px;
-  line-height: 1.25;
+  margin-bottom: 10px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
 }
 
 .theme-ref {
-  font-size: 13.5px;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(225, 29, 72, 0.08);
+  border: 1px solid rgba(225, 29, 72, 0.15);
+  font-size: 12.5px;
+  font-weight: 800;
   color: var(--pink-700);
+  letter-spacing: 0.06em;
+}
+
+.theme-ref i {
+  color: var(--pink-600);
+  font-size: 12px;
 }
 
 /* ============================================
@@ -456,9 +477,14 @@ body {
   flex-direction: column;
   justify-content: space-between;
   border-radius: var(--radius-xl);
-  background: var(--ash-surface);
-  border: 1px solid var(--ash-border);
-  box-shadow: var(--shadow-card);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 25px 60px -10px rgba(0, 0, 0, 0.5),
+    0 10px 25px -5px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.9);
   overflow: hidden;
   position: relative;
 }
@@ -469,7 +495,7 @@ body {
   align-items: center;
   gap: 16px;
   border-bottom: 1.5px solid var(--ash-border-sub);
-  background: linear-gradient(180deg, #ffffff 0%, var(--ash-subtle) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.90) 100%);
   position: relative;
 }
 
@@ -529,6 +555,42 @@ body {
 }
 
 @media (max-width: 767px) {
+  /* Push dark base to the bottom so flyer stays visible alongside registration card */
+  .bg-orbs::before {
+    background-position: center top !important;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 85%, transparent 95%) !important;
+    mask-image: linear-gradient(to bottom, #000 0%, #000 85%, transparent 95%) !important;
+  }
+
+  .bg-orbs::after {
+    background: 
+      radial-gradient(
+        ellipse at 50% 25%,
+        rgba(15, 23, 42, 0.28) 0%,
+        rgba(10, 15, 26, 0.46) 65%,
+        rgba(7, 10, 19, 0.65) 86%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(136, 19, 55, 0.12) 0%,
+        rgba(15, 23, 42, 0.32) 65%,
+        rgba(7, 9, 14, 0.75) 88%,
+        #07090e 96%,
+        #07090e 100%
+      ) !important;
+  }
+
+  .brand-header {
+    justify-content: center !important;
+    text-align: center;
+    padding: 10px 0 16px;
+    width: 100%;
+  }
+
+  .brand-logo {
+    margin: 0 auto !important;
+  }
+
   /* Mobile only: remove event details and theme cards */
   .hero .hero-subtitle,
   .hero .event-meta,
@@ -563,6 +625,8 @@ body {
   .hero-title .block-title {
     font-size: clamp(22px, 6vw, 28px);
     line-height: 1.15;
+    color: #ffffff !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7), 0 1px 3px rgba(0, 0, 0, 0.9);
   }
 
   .layout {
@@ -1034,7 +1098,7 @@ body {
   margin-top: 36px;
   padding: 24px 8px 8px;
   text-align: center;
-  border-top: 1px solid var(--ash-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .footer-socials {
@@ -1050,10 +1114,10 @@ body {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #ffffff;
-  border: 1px solid var(--ash-border);
-  color: var(--ash-600);
-  box-shadow: var(--shadow-sm);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  color: var(--ash-700);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
   transition: all var(--t-fast) var(--ease);
   text-decoration: none;
   font-size: 15px;
@@ -1064,7 +1128,16 @@ body {
   color: #ffffff;
   transform: translateY(-2px);
   border-color: transparent;
-  box-shadow: 0 8px 20px -3px rgba(225, 29, 72, 0.4);
+  box-shadow: 0 8px 20px -3px rgba(225, 29, 72, 0.5);
+}
+
+.copyright {
+  color: #ffffff !important;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+  opacity: 0.95;
 }
 
 /* ============================================
