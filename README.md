@@ -39,11 +39,11 @@ cp .env.example .env
 2. **mNotify SMS API:**
    - Sign up at https://www.mnotify.com/
    - Get your API key from Dashboard → Settings → API Keys
-   - Register sender ID `HHC-SBM2025` (approval takes 24-48 hours)
+   - Register sender ID `SMB-2026` (approval takes 24-48 hours)
    - Add credentials to `.env`:
      ```env
      MNOTIFY_API_KEY=your-api-key-here
-     MNOTIFY_SENDER_ID=HHC-SBM2025
+     MNOTIFY_SENDER_ID=SBM-2026
      ```
 
 3. **Google Sheets:**
