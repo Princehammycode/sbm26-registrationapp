@@ -39,7 +39,7 @@ This guide details how to deploy the **HHC-SBM Registration App** (frontend + ba
    - `BREVO_API_KEY`: Your Brevo email API key (`xkeysib-...`)
    - `BREVO_FROM_EMAIL`: Your verified sender email
    - `MNOTIFY_API_KEY`: Your mNotify SMS API key
-   - `MNOTIFY_SENDER_ID`: `HHC-SBM2025`
+   - `MNOTIFY_SENDER_ID`: `SBM-2025`
    - `GOOGLE_SPREADSHEET_ID`: Your Google Sheets spreadsheet ID
    - `GOOGLE_CREDENTIALS_BASE64`: Base64 string of your `google-credentials.json` (see below)
 
