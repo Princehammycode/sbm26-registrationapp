@@ -182,7 +182,7 @@ const getEmailTemplate = (name, ticketCode, downloadUrl, options = {}) => {
                       <tr>
                         <td width="26" valign="top" style="padding-bottom: 8px;">📍</td>
                         <td valign="top" style="padding-bottom: 8px;">
-                          <strong style="color: #0f172a;">Venue:</strong> The Palms, Labadi Beach Hotel, Accra
+                          <strong style="color: #0f172a;">Venue:</strong> Accra International Conference Centre, Grand Arena
                         </td>
                       </tr>
                       <tr>
@@ -205,6 +205,21 @@ const getEmailTemplate = (name, ticketCode, downloadUrl, options = {}) => {
                 <tr>
                   <td style="padding: 12px 16px; font-size: 12.5px; color: #64748b; line-height: 1.55;">
                     <strong style="color: #be123c;">Entrance Note:</strong> Please have your digital or printed pass ready at the venue entrance. Gates open promptly at 7:00 AM.
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Enquiries Section -->
+          <tr>
+            <td class="mobile-padding" style="padding: 0 36px 20px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px;">
+                <tr>
+                  <td style="padding: 13px 18px; font-size: 13px; color: #334155; line-height: 1.5;">
+                    <strong style="color: #0f172a;">For further enquiries please contact:</strong>
+                    <a href="tel:0242818976" style="color: #be123c; text-decoration: none; font-weight: 700; margin-left: 4px;">0242818976</a> or 
+                    <a href="tel:0559576485" style="color: #be123c; text-decoration: none; font-weight: 700;">0559576485</a>
                   </td>
                 </tr>
               </table>

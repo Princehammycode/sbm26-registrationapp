@@ -153,7 +153,7 @@ function generateTicketPDF(registration) {
 
   drawRow('📅', 'Date', 'Saturday, 14th November 2026', eventCardY + 30);
   drawRow('⏰', 'Time', '7:00 AM (Prompt)', eventCardY + 54);
-  drawRow('📍', 'Venue', 'The Palms, Labadi Beach Hotel, Accra', eventCardY + 78);
+  drawRow('📍', 'Venue', 'Accra International Conference Centre, Grand Arena', eventCardY + 78);
   drawRow('🎙️', 'Host', 'Rev. Dr. Kwadwo Bempah', eventCardY + 102);
   drawRow('✨', 'Theme', 'Nothing is Impossible with Faith (Mark 9:23)', eventCardY + 126);
 

@@ -20,9 +20,11 @@ async function sendRegistrationSMS(phoneNumber, name, ticketId, downloadUrl) {
 
   const closingLine = isEventDayOrAfter
     ? 'God bless you and Enjoy the service.'
-    : 'God bless you and see you on Sat 14th Nov 2026 at The Palms, Labadi Beach Hotel @7am.';
+    : 'God bless you and see you on Sat 14th NOVEMBER 2026 at The Grand Arena, AICC @ 7AM.';
 
-  const message = `Dear ${name}, Thank you for registering for Supernatural Breakfast Meeting 2026.\nYour Ticket ID is: ${ticketId}\n${closingLine}`;
+  const enquiryLine = 'For further enquiries please contact: 0242818976 or 0559576485';
+
+  const message = `Dear ${name}, Thank you for registering for Supernatural Breakfast Meeting 2026.\n\nYour Ticket ID is: ${ticketId}\n${closingLine}\n\n${enquiryLine}`;
 
   // mNotify API payload structure
   const smsData = {
@@ -80,17 +82,24 @@ async function sendRegistrationSMS(phoneNumber, name, ticketId, downloadUrl) {
  * @returns {string} Formatted phone number
  */
 function formatPhoneNumber(phoneNumber) {
-  // Remove all spaces, dashes, and plus signs
-  let cleaned = phoneNumber.replace(/[\s\-+]/g, '');
+  if (!phoneNumber) return '';
+  const raw = String(phoneNumber).trim();
+  const startsWithPlus = raw.startsWith('+');
+  let cleaned = raw.replace(/[\s\-+()]/g, '');
 
-  // If number starts with 0, replace with 233 (Ghana country code)
-  if (cleaned.startsWith('0')) {
-    cleaned = '233' + cleaned.substring(1);
+  // Standard Ghana local number with leading zero (e.g. 0244123456 -> 233244123456)
+  if (cleaned.startsWith('0') && cleaned.length === 10) {
+    return '233' + cleaned.substring(1);
   }
 
-  // If number doesn't start with 233, add it
-  if (!cleaned.startsWith('233')) {
-    cleaned = '233' + cleaned;
+  // Explicitly provided with international '+' prefix, preserve international country code
+  if (startsWithPlus) {
+    return cleaned;
+  }
+
+  // If 9 digits without country code, assume Ghana local without leading zero
+  if (cleaned.length === 9) {
+    return '233' + cleaned;
   }
 
   return cleaned;

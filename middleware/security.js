@@ -58,8 +58,8 @@ const registrationValidation = [
   
   body('contact')
     .trim()
-    .matches(/^[0-9]{10}$/)
-    .withMessage('Phone number must be exactly 10 digits (e.g. 0244123456)'),
+    .matches(/^\+?[0-9\s\-()]{7,20}$/)
+    .withMessage('Please enter a valid phone number'),
   
   body('email')
     .optional({ checkFalsy: true })

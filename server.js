@@ -9,7 +9,9 @@ const excelService = require('./services/excelService');
 const dbService = require('./services/dbService');
 const databaseService = require('./services/databaseService');
 const pdfTicketService = require('./services/pdfTicketService');
+const keepAliveService = require('./services/keepAliveService');
 const { verifyToken, generateToken, verifyCredentials } = require('./middleware/auth');
+const memoryNewConverts = [];
 const {
   loginLimiter,
   registrationValidation,
@@ -110,13 +112,13 @@ function normalizePhone(phone) {
 }
 
 function sheetsHasDuplicate(allRegs, normalizedContact, name) {
-  const normName = String(name || '').trim().toLowerCase();
+  const normName = String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
   return allRegs.some((reg) => {
     const existingRaw =
       reg.contact || reg.Contact || reg.contact_normalized || '';
     const existingNorm = normalizePhone(existingRaw);
-    const existingName = String(reg.name || reg.Name || '').trim().toLowerCase();
-    return existingNorm === normalizedContact && existingName === normName;
+    const existingName = String(reg.name || reg.Name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    return (existingNorm === normalizedContact || existingRaw === normalizedContact) && existingName === normName;
   });
 }
 
@@ -165,14 +167,29 @@ app.post(
           .status(400)
           .json({ success: false, message: 'Phone number is required.' });
       }
-      const digits = contact.replace(/\D/g, '');
-      if (digits.length !== 10) {
+      const rawDigits = contact.replace(/\D/g, '');
+      if (rawDigits.length < 7 || rawDigits.length > 17) {
         return res
           .status(400)
-          .json({ success: false, message: 'Phone number must be exactly 10 digits (e.g. 0244123456).' });
+          .json({ success: false, message: 'Phone number must be between 7 and 17 digits.' });
       }
 
-      const normalizedContact = normalizePhone(contact);
+      // Arrange country code and number properly
+      let formattedContact = contact.trim();
+      if (!formattedContact.startsWith('+')) {
+        if (rawDigits.length === 10 && rawDigits.startsWith('0')) {
+          // Standard Ghana local: omit leading zero and prefix +233
+          formattedContact = '+233' + rawDigits.substring(1);
+        } else if (rawDigits.length === 9) {
+          formattedContact = '+233' + rawDigits;
+        } else if (rawDigits.startsWith('233')) {
+          formattedContact = '+' + rawDigits;
+        } else {
+          formattedContact = '+' + rawDigits;
+        }
+      }
+
+      const normalizedContact = normalizePhone(formattedContact);
       let ticketId;
       let registration;
       let useSheetsPrimary = !process.env.DATABASE_URL;
@@ -180,13 +197,20 @@ app.post(
       if (process.env.DATABASE_URL) {
         registration = {
           name,
-          contact,
+          contact: formattedContact,
           memberStatus: memberStatus || null,
           location,
           email: email || null
         };
         const saveResult = await databaseService.saveRegistrationWithDedup(registration);
         if (!saveResult.success) {
+          if (saveResult.duplicate) {
+            return res.status(409).json({
+              success: false,
+              code: 'DUPLICATE_REGISTRATION',
+              message: saveResult.message || 'You are already registered! Please check your SMS for your ticket ID.'
+            });
+          }
           return res.status(500).json({
             success: false,
             message: 'Registration failed. Please try again.'
@@ -212,7 +236,12 @@ app.post(
       } else {
         const allRegs = await excelService.getAllRegistrations();
         if (sheetsHasDuplicate(allRegs, normalizedContact, name)) {
-          console.log('ℹ️ Duplicate submission detected in Sheets for:', name);
+          console.log('⚠️ Duplicate registration rejected in Sheets for:', name);
+          return res.status(409).json({
+            success: false,
+            code: 'DUPLICATE_REGISTRATION',
+            message: 'You are already registered! Please check your SMS for your ticket ID.'
+          });
         }
         const maxAttempts = 50;
         let attempts = 0;
@@ -347,8 +376,7 @@ app.post(
         return res.status(409).json({
           success: false,
           code: 'DUPLICATE_CONTACT',
-          message:
-            'This phone number has already been registered. Each person can only register once.'
+          message: 'You are already registered! Please check your SMS for your ticket ID.'
         });
       }
       res.status(500).json({
@@ -522,14 +550,22 @@ app.post(['/api/new-converts', '/api/newconverts'], async (req, res) => {
 
     // Contact is optional for altar call converts
     if (contact && contact.trim() !== '') {
-      const digits = contact.replace(/\D/g, '');
-      if (digits.length !== 10) {
+      const rawDigits = contact.replace(/\D/g, '');
+      if (rawDigits.length < 7 || rawDigits.length > 17) {
         return res.status(400).json({
           success: false,
-          message: 'Phone number must be exactly 10 digits if provided (e.g. 0244123456).'
+          message: 'Phone number must be between 7 and 17 digits if provided.'
         });
       }
-      contact = digits;
+      if (!contact.startsWith('+')) {
+        if (rawDigits.length === 10 && rawDigits.startsWith('0')) {
+          contact = '+233' + rawDigits.substring(1);
+        } else if (rawDigits.length === 9) {
+          contact = '+233' + rawDigits;
+        } else {
+          contact = '+' + rawDigits;
+        }
+      }
     } else {
       contact = null;
     }
@@ -537,8 +573,35 @@ app.post(['/api/new-converts', '/api/newconverts'], async (req, res) => {
     let savedRow;
     if (process.env.DATABASE_URL) {
       const result = await databaseService.saveNewConvert({ name, contact, location });
+      if (!result.success) {
+        if (result.duplicate) {
+          return res.status(409).json({
+            success: false,
+            code: 'DUPLICATE_CONVERT',
+            message: result.message || 'A new convert record with this name and phone number already exists.'
+          });
+        }
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to save new convert record.'
+        });
+      }
       savedRow = result.row;
     } else {
+      // Memory fallback check for duplicate
+      const normName = name.toLowerCase().replace(/\s+/g, ' ');
+      const normPhone = contact ? normalizePhone(contact) : null;
+      if (normPhone && memoryNewConverts.some(c => 
+        String(c.name || '').trim().toLowerCase().replace(/\s+/g, ' ') === normName &&
+        normalizePhone(c.contact) === normPhone
+      )) {
+        return res.status(409).json({
+          success: false,
+          code: 'DUPLICATE_CONVERT',
+          message: 'A new convert record with this name and phone number already exists.'
+        });
+      }
+
       savedRow = {
         id: Date.now(),
         name,
@@ -546,6 +609,7 @@ app.post(['/api/new-converts', '/api/newconverts'], async (req, res) => {
         location,
         created_at: new Date().toISOString()
       };
+      memoryNewConverts.push(savedRow);
     }
 
     res.json({
@@ -852,7 +916,7 @@ app.get('/', (req, res) => {
   res.redirect('/register');
 });
 
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health'], (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
@@ -867,6 +931,8 @@ if (require.main === module) {
     console.log(
       `📱 SMS service: ${process.env.MNOTIFY_API_KEY ? 'Configured (mNotify)' : 'Not configured'}`
     );
+    // Start background keep-alive to prevent Render free-tier inactive shutdown
+    keepAliveService.startKeepAlive();
   });
 }
 

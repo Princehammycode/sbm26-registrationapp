@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
@@ -11,17 +12,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet"
-  >
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    referrerpolicy="no-referrer"
-  >
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    referrerpolicy="no-referrer">
   <link rel="icon" type="image/png" href="images/logo.png">
   <link rel="apple-touch-icon" href="images/logo.png">
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
   <div class="bg-orbs" aria-hidden="true">
     <span class="orb orb-1"></span>
@@ -79,7 +77,7 @@
               </div>
               <div>
                 <p class="meta-label">Venue</p>
-                <p class="meta-value">The Palms, Labadi Beach Hotel, Accra</p>
+                <p class="meta-value">Accra International Conference Centre, Grand Arena</p>
               </div>
             </li>
             <li>
@@ -123,15 +121,7 @@
             <div class="form-group floating" data-field="name">
               <div class="input-wrap">
                 <i class="fa-solid fa-user input-icon"></i>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  autocomplete="name"
-                  placeholder=" "
-                  required
-                  maxlength="100"
-                >
+                <input type="text" id="name" name="name" autocomplete="name" placeholder=" " required maxlength="100">
                 <label for="name">Full Name <span class="req">*</span></label>
                 <span class="state-mark">
                   <i class="fa-solid fa-check valid"></i>
@@ -146,28 +136,271 @@
 
             <div class="form-grid-row">
               <div class="form-group floating" data-field="contact">
-                <div class="input-wrap">
-                  <i class="fa-solid fa-phone input-icon"></i>
-                  <input
-                    type="tel"
-                    id="contact"
-                    name="contact"
-                    autocomplete="tel"
-                    placeholder=" "
-                    required
-                    inputmode="numeric"
-                    maxlength="10"
-                    pattern="[0-9]{10}"
-                  >
-                  <label for="contact">Phone Number (10 Digits) <span class="req">*</span></label>
+                <div class="input-wrap phone-input-wrap">
+                  <div class="country-picker" id="countryPicker" title="Select Country" tabindex="0" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                    <select id="countrySelect" class="country-select-hidden" aria-label="Select Country" tabindex="-1">
+                      <option value="GH" data-dial="+233" data-digits="10" data-omit-zero="true" selected>Ghana (+233)
+                      </option>
+                      <option value="AF" data-dial="+93" data-digits="15" data-omit-zero="true">Afghanistan (+93)
+                      </option>
+                      <option value="AL" data-dial="+355" data-digits="15" data-omit-zero="true">Albania (+355)</option>
+                      <option value="DZ" data-dial="+213" data-digits="15" data-omit-zero="true">Algeria (+213)</option>
+                      <option value="AD" data-dial="+376" data-digits="15" data-omit-zero="true">Andorra (+376)</option>
+                      <option value="AO" data-dial="+244" data-digits="15" data-omit-zero="true">Angola (+244)</option>
+                      <option value="AG" data-dial="+1268" data-digits="15" data-omit-zero="true">Antigua and Barbuda
+                        (+1268)</option>
+                      <option value="AR" data-dial="+54" data-digits="15" data-omit-zero="true">Argentina (+54)</option>
+                      <option value="AM" data-dial="+374" data-digits="15" data-omit-zero="true">Armenia (+374)</option>
+                      <option value="AU" data-dial="+61" data-digits="15" data-omit-zero="true">Australia (+61)</option>
+                      <option value="AT" data-dial="+43" data-digits="15" data-omit-zero="true">Austria (+43)</option>
+                      <option value="AZ" data-dial="+994" data-digits="15" data-omit-zero="true">Azerbaijan (+994)
+                      </option>
+                      <option value="BS" data-dial="+1242" data-digits="15" data-omit-zero="true">Bahamas (+1242)
+                      </option>
+                      <option value="BH" data-dial="+973" data-digits="15" data-omit-zero="true">Bahrain (+973)</option>
+                      <option value="BD" data-dial="+880" data-digits="15" data-omit-zero="true">Bangladesh (+880)
+                      </option>
+                      <option value="BB" data-dial="+1246" data-digits="15" data-omit-zero="true">Barbados (+1246)
+                      </option>
+                      <option value="BY" data-dial="+375" data-digits="15" data-omit-zero="true">Belarus (+375)</option>
+                      <option value="BE" data-dial="+32" data-digits="15" data-omit-zero="true">Belgium (+32)</option>
+                      <option value="BZ" data-dial="+501" data-digits="15" data-omit-zero="true">Belize (+501)</option>
+                      <option value="BJ" data-dial="+229" data-digits="15" data-omit-zero="true">Benin (+229)</option>
+                      <option value="BT" data-dial="+975" data-digits="15" data-omit-zero="true">Bhutan (+975)</option>
+                      <option value="BO" data-dial="+591" data-digits="15" data-omit-zero="true">Bolivia (+591)</option>
+                      <option value="BA" data-dial="+387" data-digits="15" data-omit-zero="true">Bosnia and Herzegovina
+                        (+387)</option>
+                      <option value="BW" data-dial="+267" data-digits="15" data-omit-zero="true">Botswana (+267)
+                      </option>
+                      <option value="BR" data-dial="+55" data-digits="15" data-omit-zero="true">Brazil (+55)</option>
+                      <option value="BN" data-dial="+673" data-digits="15" data-omit-zero="true">Brunei (+673)</option>
+                      <option value="BG" data-dial="+359" data-digits="15" data-omit-zero="true">Bulgaria (+359)
+                      </option>
+                      <option value="BF" data-dial="+226" data-digits="15" data-omit-zero="true">Burkina Faso (+226)
+                      </option>
+                      <option value="BI" data-dial="+257" data-digits="15" data-omit-zero="true">Burundi (+257)</option>
+                      <option value="KH" data-dial="+855" data-digits="15" data-omit-zero="true">Cambodia (+855)
+                      </option>
+                      <option value="CM" data-dial="+237" data-digits="15" data-omit-zero="true">Cameroon (+237)
+                      </option>
+                      <option value="CA" data-dial="+1" data-digits="15" data-omit-zero="true">Canada (+1)</option>
+                      <option value="CV" data-dial="+238" data-digits="15" data-omit-zero="true">Cape Verde (+238)
+                      </option>
+                      <option value="CF" data-dial="+236" data-digits="15" data-omit-zero="true">Central African
+                        Republic (+236)</option>
+                      <option value="TD" data-dial="+235" data-digits="15" data-omit-zero="true">Chad (+235)</option>
+                      <option value="CL" data-dial="+56" data-digits="15" data-omit-zero="true">Chile (+56)</option>
+                      <option value="CN" data-dial="+86" data-digits="15" data-omit-zero="true">China (+86)</option>
+                      <option value="CO" data-dial="+57" data-digits="15" data-omit-zero="true">Colombia (+57)</option>
+                      <option value="KM" data-dial="+269" data-digits="15" data-omit-zero="true">Comoros (+269)</option>
+                      <option value="CG" data-dial="+242" data-digits="15" data-omit-zero="true">Congo (+242)</option>
+                      <option value="CD" data-dial="+243" data-digits="15" data-omit-zero="true">Congo (DRC) (+243)
+                      </option>
+                      <option value="CR" data-dial="+506" data-digits="15" data-omit-zero="true">Costa Rica (+506)
+                      </option>
+                      <option value="CI" data-dial="+225" data-digits="15" data-omit-zero="true">Cote d'Ivoire (+225)
+                      </option>
+                      <option value="HR" data-dial="+385" data-digits="15" data-omit-zero="true">Croatia (+385)</option>
+                      <option value="CU" data-dial="+53" data-digits="15" data-omit-zero="true">Cuba (+53)</option>
+                      <option value="CY" data-dial="+357" data-digits="15" data-omit-zero="true">Cyprus (+357)</option>
+                      <option value="CZ" data-dial="+420" data-digits="15" data-omit-zero="true">Czech Republic (+420)
+                      </option>
+                      <option value="DK" data-dial="+45" data-digits="15" data-omit-zero="true">Denmark (+45)</option>
+                      <option value="DJ" data-dial="+253" data-digits="15" data-omit-zero="true">Djibouti (+253)
+                      </option>
+                      <option value="DM" data-dial="+1767" data-digits="15" data-omit-zero="true">Dominica (+1767)
+                      </option>
+                      <option value="DO" data-dial="+1809" data-digits="15" data-omit-zero="true">Dominican Republic
+                        (+1809)</option>
+                      <option value="EC" data-dial="+593" data-digits="15" data-omit-zero="true">Ecuador (+593)</option>
+                      <option value="EG" data-dial="+20" data-digits="15" data-omit-zero="true">Egypt (+20)</option>
+                      <option value="SV" data-dial="+503" data-digits="15" data-omit-zero="true">El Salvador (+503)
+                      </option>
+                      <option value="GQ" data-dial="+240" data-digits="15" data-omit-zero="true">Equatorial Guinea
+                        (+240)</option>
+                      <option value="ER" data-dial="+291" data-digits="15" data-omit-zero="true">Eritrea (+291)</option>
+                      <option value="EE" data-dial="+372" data-digits="15" data-omit-zero="true">Estonia (+372)</option>
+                      <option value="SZ" data-dial="+268" data-digits="15" data-omit-zero="true">Eswatini (+268)
+                      </option>
+                      <option value="ET" data-dial="+251" data-digits="15" data-omit-zero="true">Ethiopia (+251)
+                      </option>
+                      <option value="FJ" data-dial="+679" data-digits="15" data-omit-zero="true">Fiji (+679)</option>
+                      <option value="FI" data-dial="+358" data-digits="15" data-omit-zero="true">Finland (+358)</option>
+                      <option value="FR" data-dial="+33" data-digits="15" data-omit-zero="true">France (+33)</option>
+                      <option value="GA" data-dial="+241" data-digits="15" data-omit-zero="true">Gabon (+241)</option>
+                      <option value="GM" data-dial="+220" data-digits="15" data-omit-zero="true">Gambia (+220)</option>
+                      <option value="GE" data-dial="+995" data-digits="15" data-omit-zero="true">Georgia (+995)</option>
+                      <option value="DE" data-dial="+49" data-digits="15" data-omit-zero="true">Germany (+49)</option>
+                      <option value="GR" data-dial="+30" data-digits="15" data-omit-zero="true">Greece (+30)</option>
+                      <option value="GD" data-dial="+1473" data-digits="15" data-omit-zero="true">Grenada (+1473)
+                      </option>
+                      <option value="GT" data-dial="+502" data-digits="15" data-omit-zero="true">Guatemala (+502)
+                      </option>
+                      <option value="GN" data-dial="+224" data-digits="15" data-omit-zero="true">Guinea (+224)</option>
+                      <option value="GW" data-dial="+245" data-digits="15" data-omit-zero="true">Guinea-Bissau (+245)
+                      </option>
+                      <option value="GY" data-dial="+592" data-digits="15" data-omit-zero="true">Guyana (+592)</option>
+                      <option value="HT" data-dial="+509" data-digits="15" data-omit-zero="true">Haiti (+509)</option>
+                      <option value="HN" data-dial="+504" data-digits="15" data-omit-zero="true">Honduras (+504)
+                      </option>
+                      <option value="HU" data-dial="+36" data-digits="15" data-omit-zero="true">Hungary (+36)</option>
+                      <option value="IS" data-dial="+354" data-digits="15" data-omit-zero="true">Iceland (+354)</option>
+                      <option value="IN" data-dial="+91" data-digits="15" data-omit-zero="true">India (+91)</option>
+                      <option value="ID" data-dial="+62" data-digits="15" data-omit-zero="true">Indonesia (+62)</option>
+                      <option value="IR" data-dial="+98" data-digits="15" data-omit-zero="true">Iran (+98)</option>
+                      <option value="IQ" data-dial="+964" data-digits="15" data-omit-zero="true">Iraq (+964)</option>
+                      <option value="IE" data-dial="+353" data-digits="15" data-omit-zero="true">Ireland (+353)</option>
+                      <option value="IL" data-dial="+972" data-digits="15" data-omit-zero="true">Israel (+972)</option>
+                      <option value="IT" data-dial="+39" data-digits="15" data-omit-zero="true">Italy (+39)</option>
+                      <option value="JM" data-dial="+1876" data-digits="15" data-omit-zero="true">Jamaica (+1876)
+                      </option>
+                      <option value="JP" data-dial="+81" data-digits="15" data-omit-zero="true">Japan (+81)</option>
+                      <option value="JO" data-dial="+962" data-digits="15" data-omit-zero="true">Jordan (+962)</option>
+                      <option value="KZ" data-dial="+7" data-digits="15" data-omit-zero="true">Kazakhstan (+7)</option>
+                      <option value="KE" data-dial="+254" data-digits="10" data-omit-zero="true">Kenya (+254)</option>
+                      <option value="KW" data-dial="+965" data-digits="15" data-omit-zero="true">Kuwait (+965)</option>
+                      <option value="KG" data-dial="+996" data-digits="15" data-omit-zero="true">Kyrgyzstan (+996)
+                      </option>
+                      <option value="LA" data-dial="+856" data-digits="15" data-omit-zero="true">Laos (+856)</option>
+                      <option value="LV" data-dial="+371" data-digits="15" data-omit-zero="true">Latvia (+371)</option>
+                      <option value="LB" data-dial="+961" data-digits="15" data-omit-zero="true">Lebanon (+961)</option>
+                      <option value="LS" data-dial="+266" data-digits="15" data-omit-zero="true">Lesotho (+266)</option>
+                      <option value="LR" data-dial="+231" data-digits="15" data-omit-zero="true">Liberia (+231)</option>
+                      <option value="LY" data-dial="+218" data-digits="15" data-omit-zero="true">Libya (+218)</option>
+                      <option value="LI" data-dial="+423" data-digits="15" data-omit-zero="true">Liechtenstein (+423)
+                      </option>
+                      <option value="LT" data-dial="+370" data-digits="15" data-omit-zero="true">Lithuania (+370)
+                      </option>
+                      <option value="LU" data-dial="+352" data-digits="15" data-omit-zero="true">Luxembourg (+352)
+                      </option>
+                      <option value="MG" data-dial="+261" data-digits="15" data-omit-zero="true">Madagascar (+261)
+                      </option>
+                      <option value="MW" data-dial="+265" data-digits="15" data-omit-zero="true">Malawi (+265)</option>
+                      <option value="MY" data-dial="+60" data-digits="15" data-omit-zero="true">Malaysia (+60)</option>
+                      <option value="MV" data-dial="+960" data-digits="15" data-omit-zero="true">Maldives (+960)
+                      </option>
+                      <option value="ML" data-dial="+223" data-digits="15" data-omit-zero="true">Mali (+223)</option>
+                      <option value="MT" data-dial="+356" data-digits="15" data-omit-zero="true">Malta (+356)</option>
+                      <option value="MR" data-dial="+222" data-digits="15" data-omit-zero="true">Mauritania (+222)
+                      </option>
+                      <option value="MU" data-dial="+230" data-digits="15" data-omit-zero="true">Mauritius (+230)
+                      </option>
+                      <option value="MX" data-dial="+52" data-digits="15" data-omit-zero="true">Mexico (+52)</option>
+                      <option value="MD" data-dial="+373" data-digits="15" data-omit-zero="true">Moldova (+373)</option>
+                      <option value="MC" data-dial="+377" data-digits="15" data-omit-zero="true">Monaco (+377)</option>
+                      <option value="MN" data-dial="+976" data-digits="15" data-omit-zero="true">Mongolia (+976)
+                      </option>
+                      <option value="ME" data-dial="+382" data-digits="15" data-omit-zero="true">Montenegro (+382)
+                      </option>
+                      <option value="MA" data-dial="+212" data-digits="15" data-omit-zero="true">Morocco (+212)</option>
+                      <option value="MZ" data-dial="+258" data-digits="15" data-omit-zero="true">Mozambique (+258)
+                      </option>
+                      <option value="MM" data-dial="+95" data-digits="15" data-omit-zero="true">Myanmar (+95)</option>
+                      <option value="NA" data-dial="+264" data-digits="15" data-omit-zero="true">Namibia (+264)</option>
+                      <option value="NP" data-dial="+977" data-digits="15" data-omit-zero="true">Nepal (+977)</option>
+                      <option value="NL" data-dial="+31" data-digits="15" data-omit-zero="true">Netherlands (+31)
+                      </option>
+                      <option value="NZ" data-dial="+64" data-digits="15" data-omit-zero="true">New Zealand (+64)
+                      </option>
+                      <option value="NI" data-dial="+505" data-digits="15" data-omit-zero="true">Nicaragua (+505)
+                      </option>
+                      <option value="NE" data-dial="+227" data-digits="15" data-omit-zero="true">Niger (+227)</option>
+                      <option value="NG" data-dial="+234" data-digits="11" data-omit-zero="true">Nigeria (+234)</option>
+                      <option value="NO" data-dial="+47" data-digits="15" data-omit-zero="true">Norway (+47)</option>
+                      <option value="OM" data-dial="+968" data-digits="15" data-omit-zero="true">Oman (+968)</option>
+                      <option value="PK" data-dial="+92" data-digits="15" data-omit-zero="true">Pakistan (+92)</option>
+                      <option value="PA" data-dial="+507" data-digits="15" data-omit-zero="true">Panama (+507)</option>
+                      <option value="PG" data-dial="+675" data-digits="15" data-omit-zero="true">Papua New Guinea (+675)
+                      </option>
+                      <option value="PY" data-dial="+595" data-digits="15" data-omit-zero="true">Paraguay (+595)
+                      </option>
+                      <option value="PE" data-dial="+51" data-digits="15" data-omit-zero="true">Peru (+51)</option>
+                      <option value="PH" data-dial="+63" data-digits="15" data-omit-zero="true">Philippines (+63)
+                      </option>
+                      <option value="PL" data-dial="+48" data-digits="15" data-omit-zero="true">Poland (+48)</option>
+                      <option value="PT" data-dial="+351" data-digits="15" data-omit-zero="true">Portugal (+351)
+                      </option>
+                      <option value="QA" data-dial="+974" data-digits="15" data-omit-zero="true">Qatar (+974)</option>
+                      <option value="RO" data-dial="+40" data-digits="15" data-omit-zero="true">Romania (+40)</option>
+                      <option value="RU" data-dial="+7" data-digits="15" data-omit-zero="true">Russia (+7)</option>
+                      <option value="RW" data-dial="+250" data-digits="15" data-omit-zero="true">Rwanda (+250)</option>
+                      <option value="SA" data-dial="+966" data-digits="15" data-omit-zero="true">Saudi Arabia (+966)
+                      </option>
+                      <option value="SN" data-dial="+221" data-digits="15" data-omit-zero="true">Senegal (+221)</option>
+                      <option value="RS" data-dial="+381" data-digits="15" data-omit-zero="true">Serbia (+381)</option>
+                      <option value="SL" data-dial="+232" data-digits="15" data-omit-zero="true">Sierra Leone (+232)
+                      </option>
+                      <option value="SG" data-dial="+65" data-digits="15" data-omit-zero="true">Singapore (+65)</option>
+                      <option value="SK" data-dial="+421" data-digits="15" data-omit-zero="true">Slovakia (+421)
+                      </option>
+                      <option value="SI" data-dial="+386" data-digits="15" data-omit-zero="true">Slovenia (+386)
+                      </option>
+                      <option value="SO" data-dial="+252" data-digits="15" data-omit-zero="true">Somalia (+252)</option>
+                      <option value="ZA" data-dial="+27" data-digits="10" data-omit-zero="true">South Africa (+27)
+                      </option>
+                      <option value="KR" data-dial="+82" data-digits="15" data-omit-zero="true">South Korea (+82)
+                      </option>
+                      <option value="ES" data-dial="+34" data-digits="15" data-omit-zero="true">Spain (+34)</option>
+                      <option value="LK" data-dial="+94" data-digits="15" data-omit-zero="true">Sri Lanka (+94)</option>
+                      <option value="SD" data-dial="+249" data-digits="15" data-omit-zero="true">Sudan (+249)</option>
+                      <option value="SE" data-dial="+46" data-digits="15" data-omit-zero="true">Sweden (+46)</option>
+                      <option value="CH" data-dial="+41" data-digits="15" data-omit-zero="true">Switzerland (+41)
+                      </option>
+                      <option value="SY" data-dial="+963" data-digits="15" data-omit-zero="true">Syria (+963)</option>
+                      <option value="TW" data-dial="+886" data-digits="15" data-omit-zero="true">Taiwan (+886)</option>
+                      <option value="TZ" data-dial="+255" data-digits="15" data-omit-zero="true">Tanzania (+255)
+                      </option>
+                      <option value="TH" data-dial="+66" data-digits="15" data-omit-zero="true">Thailand (+66)</option>
+                      <option value="TG" data-dial="+228" data-digits="15" data-omit-zero="true">Togo (+228)</option>
+                      <option value="TT" data-dial="+1868" data-digits="15" data-omit-zero="true">Trinidad and Tobago
+                        (+1868)</option>
+                      <option value="TN" data-dial="+216" data-digits="15" data-omit-zero="true">Tunisia (+216)</option>
+                      <option value="TR" data-dial="+90" data-digits="15" data-omit-zero="true">Turkey (+90)</option>
+                      <option value="UG" data-dial="+256" data-digits="15" data-omit-zero="true">Uganda (+256)</option>
+                      <option value="UA" data-dial="+380" data-digits="15" data-omit-zero="true">Ukraine (+380)</option>
+                      <option value="AE" data-dial="+971" data-digits="15" data-omit-zero="true">United Arab Emirates
+                        (+971)</option>
+                      <option value="GB" data-dial="+44" data-digits="15" data-omit-zero="true">United Kingdom (+44)
+                      </option>
+                      <option value="US" data-dial="+1" data-digits="15" data-omit-zero="true">United States (+1)
+                      </option>
+                      <option value="UY" data-dial="+598" data-digits="15" data-omit-zero="true">Uruguay (+598)</option>
+                      <option value="UZ" data-dial="+998" data-digits="15" data-omit-zero="true">Uzbekistan (+998)
+                      </option>
+                      <option value="VE" data-dial="+58" data-digits="15" data-omit-zero="true">Venezuela (+58)</option>
+                      <option value="VN" data-dial="+84" data-digits="15" data-omit-zero="true">Vietnam (+84)</option>
+                      <option value="YE" data-dial="+967" data-digits="15" data-omit-zero="true">Yemen (+967)</option>
+                      <option value="ZM" data-dial="+260" data-digits="15" data-omit-zero="true">Zambia (+260)</option>
+                      <option value="ZW" data-dial="+263" data-digits="15" data-omit-zero="true">Zimbabwe (+263)
+                      </option>
+                    </select>
+                    <div class="country-display" id="countryDisplay" aria-hidden="true">
+                      <span class="country-iso" id="countryIso">GH</span>
+                      <span class="country-dial-code" id="countryDialCode">+233</span>
+                      <i class="fa-solid fa-chevron-down country-chevron" id="countryChevron"></i>
+                    </div>
+
+                    <div class="country-dropdown-menu" id="countryDropdownMenu" role="listbox" aria-label="Select Country">
+                      <div class="country-dropdown-search">
+                        <i class="fa-solid fa-magnifying-glass country-search-icon"></i>
+                        <input type="text" id="countrySearchInput" placeholder="Search country or dial code..." autocomplete="off" spellcheck="false">
+                      </div>
+                      <div class="country-list" id="countryList">
+                        <!-- Populated dynamically from countrySelect options -->
+                      </div>
+                    </div>
+                  </div>
+                  <input type="tel" id="contact" name="contact" autocomplete="tel" placeholder=" " required
+                    inputmode="numeric" maxlength="10">
+                  <label for="contact" id="contactLabel">Phone Number <span class="req">*</span></label>
                   <span class="state-mark">
                     <i class="fa-solid fa-check valid"></i>
                     <i class="fa-solid fa-xmark invalid"></i>
                   </span>
                 </div>
-                <p class="helper" id="phoneHelper">
+                <p class="helper" id="phoneHelper" data-default="e.g. 0244123456 (10 digits)">
                   <i class="fa-solid fa-circle-info"></i>
-                  e.g. 0244123456 (10 digits only)
+                  e.g. 0244123456 (10 digits)
                 </p>
               </div>
 
@@ -194,7 +427,7 @@
                 </div>
                 <p class="helper" id="memberStatusHelper">
                   <i class="fa-solid fa-circle-info"></i>
-                  Select membership or visitor status
+                  Select membership status
                 </p>
               </div>
             </div>
@@ -203,14 +436,7 @@
               <div class="form-group floating" data-field="email">
                 <div class="input-wrap">
                   <i class="fa-solid fa-envelope input-icon"></i>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    autocomplete="email"
-                    placeholder=" "
-                    maxlength="254"
-                  >
+                  <input type="email" id="email" name="email" autocomplete="email" placeholder=" " maxlength="254">
                   <label for="email">Email <span class="opt">(optional)</span></label>
                   <span class="state-mark">
                     <i class="fa-solid fa-check valid"></i>
@@ -226,14 +452,8 @@
               <div class="form-group floating" data-field="location">
                 <div class="input-wrap">
                   <i class="fa-solid fa-location-crosshairs input-icon"></i>
-                  <input
-                    type="text"
-                    id="location"
-                    name="location"
-                    autocomplete="address-level2"
-                    placeholder=" "
-                    maxlength="100"
-                  >
+                  <input type="text" id="location" name="location" autocomplete="address-level2" placeholder=" "
+                    maxlength="100">
                   <label for="location">Location <span class="opt">(optional)</span></label>
                   <span class="state-mark">
                     <i class="fa-solid fa-check valid"></i>
@@ -270,16 +490,20 @@
 
     <footer class="site-footer">
       <div class="footer-socials">
-        <a href="https://www.facebook.com/holyhill.chapel.1" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+        <a href="https://www.facebook.com/holyhill.chapel.1" aria-label="Facebook" target="_blank"
+          rel="noopener noreferrer">
           <i class="fa-brands fa-facebook-f"></i>
         </a>
-        <a href="https://www.youtube.com/@HolyHillChapelAG" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+        <a href="https://www.youtube.com/@HolyHillChapelAG" aria-label="YouTube" target="_blank"
+          rel="noopener noreferrer">
           <i class="fa-brands fa-youtube"></i>
         </a>
-        <a href="https://www.instagram.com/holyhillchapelag?igshid=YmMyMTA2M2Y=" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+        <a href="https://www.instagram.com/holyhillchapelag?igshid=YmMyMTA2M2Y=" aria-label="Instagram" target="_blank"
+          rel="noopener noreferrer">
           <i class="fa-brands fa-instagram"></i>
         </a>
-        <a href="https://twitter.com/holyhillag?s=21&t=1JwTZBP4lyQ0vp-04e7pPg" aria-label="X (Twitter)" target="_blank" rel="noopener noreferrer">
+        <a href="https://twitter.com/holyhillag?s=21&t=1JwTZBP4lyQ0vp-04e7pPg" aria-label="X (Twitter)" target="_blank"
+          rel="noopener noreferrer">
           <i class="fa-brands fa-x-twitter"></i>
         </a>
       </div>
@@ -300,7 +524,8 @@
           <h4 class="top-banner-title">Registration Successful!</h4>
           <span class="top-banner-ticket" id="topBannerTicketCode">SBM26-000000</span>
         </div>
-        <p class="top-banner-desc" id="topBannerDesc">Welcome! Your e-ticket has been sent via SMS. Form reset for next registration.</p>
+        <p class="top-banner-desc" id="topBannerDesc">Welcome! Your e-ticket has been sent via SMS. Form reset for next
+          registration.</p>
       </div>
       <button type="button" class="top-banner-close" id="topBannerCloseBtn" aria-label="Close">
         <i class="fa-solid fa-xmark"></i>
@@ -324,8 +549,8 @@
       <p class="modal-subtitle" id="errorMessage">Something went wrong. Please try again.</p>
       <div class="modal-actions">
         <button type="button" id="errorCloseBtn" class="btn btn-primary">
-          <i class="fa-solid fa-rotate-right"></i>
-          Try Again
+          <i class="fa-solid fa-xmark"></i>
+          Close
         </button>
       </div>
     </div>
@@ -339,4 +564,5 @@
   <script src="js/config.js"></script>
   <script src="js/app.js" defer></script>
 </body>
+
 </html>

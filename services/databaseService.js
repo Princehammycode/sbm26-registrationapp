@@ -114,6 +114,20 @@ async function initializeDatabase() {
         ON new_converts(contact_normalized)
     `);
 
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_reg_name_phone
+          ON registrations(LOWER(TRIM(name)), contact_normalized)
+      `);
+    } catch (_) {}
+
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_converts_name_phone
+          ON new_converts(LOWER(TRIM(name)), contact_normalized)
+      `);
+    } catch (_) {}
+
     console.log('✅ Database tables (registrations & new_converts) initialized with multi-registrant support');
   } catch (error) {
     console.error('❌ Database initialization error:', error);
@@ -156,23 +170,23 @@ async function saveRegistrationWithDedup(registration) {
     );
     await client.query('SELECT pg_advisory_xact_lock($1)', [lockKey]);
 
-    // Check for accidental rapid duplicate submission (same exact name and same phone within 30 seconds)
-    const rapidDupCheck = await client.query(
+    // Check for duplicate registration: same name (case-insensitive) and same phone number
+    const dupCheck = await client.query(
       `SELECT ticket_id, name, contact FROM registrations 
-       WHERE contact_normalized = $1 
-         AND LOWER(TRIM(name)) = LOWER($2) 
-         AND registration_date > NOW() - INTERVAL '30 seconds' 
+       WHERE (contact_normalized = $1 OR contact = $2) 
+         AND LOWER(TRIM(name)) = LOWER(TRIM($3)) 
        LIMIT 1`,
-      [normalizedContact, trimmedName]
+      [normalizedContact, registration.contact, trimmedName]
     );
-    if (rapidDupCheck.rows.length > 0) {
+    if (dupCheck.rows.length > 0) {
       await client.query('ROLLBACK');
-      console.log('ℹ️ Rapid duplicate submission debounced for:', trimmedName);
+      console.log('⚠️ Duplicate registration rejected for:', trimmedName, normalizedContact);
       return {
-        success: true,
-        ticketId: rapidDupCheck.rows[0].ticket_id,
-        isExisting: true,
-        message: 'Registration was already received.'
+        success: false,
+        duplicate: true,
+        code: 'DUPLICATE_REGISTRATION',
+        ticketId: dupCheck.rows[0].ticket_id,
+        message: 'You are already registered! Please check your SMS for your ticket ID.'
       };
     }
 
@@ -388,19 +402,23 @@ async function saveNewConvert(data) {
 
   const client = await pool.connect();
   try {
-    // Debounce rapid identical double-clicks within 30 seconds
+    // Check for duplicate new convert: same name (case-insensitive) and same phone number
     if (normalizedContact) {
-      const rapidCheck = await client.query(
+      const dupCheck = await client.query(
         `SELECT id, name FROM new_converts 
-         WHERE contact_normalized = $1 
-           AND LOWER(TRIM(name)) = LOWER($2) 
-           AND created_at > NOW() - INTERVAL '30 seconds' 
+         WHERE (contact_normalized = $1 OR contact = $2) 
+           AND LOWER(TRIM(name)) = LOWER(TRIM($3)) 
          LIMIT 1`,
-        [normalizedContact, name]
+        [normalizedContact, contact, name]
       );
-      if (rapidCheck.rows.length > 0) {
-        console.log('ℹ️ Rapid convert submission debounced for:', name);
-        return { success: true, row: rapidCheck.rows[0], isExisting: true };
+      if (dupCheck.rows.length > 0) {
+        console.log('⚠️ Duplicate new convert rejected for:', name, normalizedContact);
+        return {
+          success: false,
+          duplicate: true,
+          code: 'DUPLICATE_CONVERT',
+          message: 'A new convert record with this name and phone number already exists.'
+        };
       }
     }
 

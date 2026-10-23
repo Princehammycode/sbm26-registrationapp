@@ -274,7 +274,11 @@
       try { data = await response.json(); } catch (_) { data = {}; }
 
       if (!response.ok || !data || data.success === false) {
-        alert(data.message || 'Failed to save record. Please try again.');
+        if (data && data.code === 'DUPLICATE_CONVERT') {
+          alert('A new convert record with this name and phone number has already been saved. Each person may only be recorded once.');
+        } else {
+          alert(data.message || 'Failed to save record. Please try again.');
+        }
         setLoading(false);
         return;
       }

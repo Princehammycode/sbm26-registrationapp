@@ -29,29 +29,46 @@
   const topBannerProgressBar = document.getElementById('topBannerProgressBar');
 
   let bannerTimer = null;
+  let errorModalTimer = null;
 
   if (topBannerCloseBtn && topSuccessBanner) {
     topBannerCloseBtn.addEventListener('click', hideTopSuccess);
   }
 
   document.getElementById('errorCloseBtn')?.addEventListener('click', () => {
+    if (errorModalTimer) {
+      clearTimeout(errorModalTimer);
+      errorModalTimer = null;
+    }
     closeModal(errorModal);
+    resetForm();
   });
   document.querySelectorAll('.modal-backdrop').forEach((bd) => {
     bd.addEventListener('click', () => {
+      if (errorModalTimer) {
+        clearTimeout(errorModalTimer);
+        errorModalTimer = null;
+      }
       closeModal(errorModal);
+      resetForm();
     });
   });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      if (errorModalTimer) {
+        clearTimeout(errorModalTimer);
+        errorModalTimer = null;
+      }
       closeModal(errorModal);
       hideTopSuccess();
+      resetForm();
     }
   });
 
   loadLiveCount();
   initValidators();
   initCustomDropdown();
+  initCountryPicker();
 
   form.addEventListener('submit', onSubmit);
 
@@ -111,7 +128,7 @@
       delete hiddenInput.dataset.touched;
     }
     if (valueDisplay) {
-      valueDisplay.textContent = 'Select attendee status';
+      valueDisplay.textContent = '';
     }
     if (wrap) {
       wrap.classList.remove('has-value', 'is-open');
@@ -120,7 +137,23 @@
       menu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
     }
 
+    // Reset country selector back to Ghana default
+    const countryPicker = document.getElementById('countryPicker');
+    if (countryPicker) countryPicker.classList.remove('is-open');
+    const countrySelect = document.getElementById('countrySelect');
+    if (countrySelect) {
+      countrySelect.value = 'GH';
+      countrySelect.dispatchEvent(new Event('change'));
+    }
+
     // Reset validation states & helper texts
+    const defaultHelpers = {
+      name: 'Enter your full legal name (letters, spaces, hyphens, apostrophes)',
+      contact: 'e.g. 0244123456 (10 digits)',
+      memberStatus: 'Select membership status',
+      email: 'For your e-ticket & event reminders',
+      location: 'City or residential area'
+    };
     const fields = ['name', 'contact', 'memberStatus', 'email', 'location'];
     fields.forEach((id) => {
       const el = document.getElementById(id);
@@ -130,8 +163,8 @@
         if (grp) grp.classList.remove('valid', 'invalid');
         const helper = document.getElementById(id + 'Helper');
         if (helper) {
-          const icon = helper.querySelector('i')?.outerHTML || '';
-          const defaultMsg = helper.getAttribute('data-default') || '';
+          const icon = helper.querySelector('i')?.outerHTML || '<i class="fa-solid fa-circle-info"></i>';
+          const defaultMsg = helper.getAttribute('data-default') || defaultHelpers[id] || '';
           if (defaultMsg) {
             helper.innerHTML = icon + ' ' + defaultMsg;
           }
@@ -244,6 +277,212 @@
     return 'fa-solid fa-circle-info';
   }
 
+  function getSelectedCountry() {
+    const countrySelect = document.getElementById('countrySelect');
+    if (!countrySelect) {
+      return { code: 'GH', dial: '+233', digits: 10, omitZero: true };
+    }
+    const opt = countrySelect.selectedOptions[0] || countrySelect.options[0];
+    return {
+      code: opt.value,
+      dial: opt.getAttribute('data-dial') || '+233',
+      digits: parseInt(opt.getAttribute('data-digits'), 10) || 15,
+      omitZero: opt.getAttribute('data-omit-zero') === 'true'
+    };
+  }
+
+  function initCountryPicker() {
+    const countryPicker = document.getElementById('countryPicker');
+    const countrySelect = document.getElementById('countrySelect');
+    const countryIso = document.getElementById('countryIso');
+    const countryDialCode = document.getElementById('countryDialCode');
+    const countrySearchInput = document.getElementById('countrySearchInput');
+    const countryList = document.getElementById('countryList');
+    const contactInput = document.getElementById('contact');
+    const phoneHelper = document.getElementById('phoneHelper');
+    const parentRow = countryPicker?.closest('.form-grid-row');
+    const parentGroup = countryPicker?.closest('.form-group');
+    if (!countryPicker || !countrySelect || !countryList) return;
+
+    // Populate custom country items from select options
+    const countries = Array.from(countrySelect.options).map((opt) => {
+      const code = opt.value;
+      const dial = opt.getAttribute('data-dial') || '';
+      const digits = opt.getAttribute('data-digits') || '15';
+      const omitZero = opt.getAttribute('data-omit-zero') || 'false';
+      const name = opt.textContent.replace(/\s*\(\+[^)]+\)\s*$/, '').trim();
+      return { code, dial, digits, omitZero, name };
+    });
+
+    countryList.innerHTML = countries.map((c) => {
+      const isSel = c.code === countrySelect.value ? ' selected' : '';
+      return `
+        <div class="country-item${isSel}" data-code="${c.code}" data-dial="${c.dial}" data-name="${c.name.toLowerCase()}" role="option">
+          <span class="country-item-iso">${c.code}</span>
+          <span class="country-item-name">${c.name}</span>
+          <span class="country-item-dial">${c.dial}</span>
+          <i class="fa-solid fa-check country-item-check"></i>
+        </div>
+      `;
+    }).join('');
+
+    function openPicker() {
+      // Close attendee status dropdown if open
+      const customSelectWrap = document.getElementById('customSelectWrap');
+      if (customSelectWrap && customSelectWrap.classList.contains('is-open')) {
+        customSelectWrap.classList.remove('is-open');
+      }
+
+      countryPicker.classList.add('is-open');
+      countryPicker.setAttribute('aria-expanded', 'true');
+      if (parentGroup) parentGroup.classList.add('is-active-field');
+      if (parentRow) parentRow.classList.add('is-active-row');
+
+      if (countrySearchInput) {
+        countrySearchInput.value = '';
+        filterCountries('');
+        setTimeout(() => countrySearchInput.focus(), 60);
+      }
+
+      const selectedItem = countryList.querySelector('.country-item.selected');
+      if (selectedItem) {
+        selectedItem.scrollIntoView({ block: 'nearest' });
+      }
+    }
+
+    function closePicker() {
+      countryPicker.classList.remove('is-open');
+      countryPicker.setAttribute('aria-expanded', 'false');
+      if (parentGroup) parentGroup.classList.remove('is-active-field');
+      if (parentRow) parentRow.classList.remove('is-active-row');
+    }
+
+    // Toggle dropdown on badge click
+    countryPicker.addEventListener('click', (e) => {
+      if (e.target.closest('.country-dropdown-menu')) return;
+      e.stopPropagation();
+      if (countryPicker.classList.contains('is-open')) {
+        closePicker();
+      } else {
+        openPicker();
+      }
+    });
+
+    // Select country item
+    countryList.addEventListener('click', (e) => {
+      const item = e.target.closest('.country-item');
+      if (!item) return;
+      e.stopPropagation();
+
+      const code = item.getAttribute('data-code');
+      countrySelect.value = code;
+      countrySelect.dispatchEvent(new Event('change'));
+
+      countryList.querySelectorAll('.country-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+
+      closePicker();
+      if (contactInput) contactInput.focus();
+    });
+
+    // Instant real-time search filtering
+    function filterCountries(q) {
+      const term = q.trim().toLowerCase();
+      let matches = 0;
+      countryList.querySelectorAll('.country-item').forEach((item) => {
+        const name = item.getAttribute('data-name') || '';
+        const code = (item.getAttribute('data-code') || '').toLowerCase();
+        const dial = (item.getAttribute('data-dial') || '').toLowerCase();
+        const ok = !term || name.includes(term) || code.includes(term) || dial.includes(term);
+        item.style.display = ok ? 'flex' : 'none';
+        if (ok) matches++;
+      });
+
+      let noRes = countryList.querySelector('.country-no-results');
+      if (matches === 0) {
+        if (!noRes) {
+          noRes = document.createElement('div');
+          noRes.className = 'country-no-results';
+          noRes.textContent = 'No matching country found';
+          countryList.appendChild(noRes);
+        }
+        noRes.style.display = 'block';
+      } else if (noRes) {
+        noRes.style.display = 'none';
+      }
+    }
+
+    if (countrySearchInput) {
+      countrySearchInput.addEventListener('input', (e) => {
+        filterCountries(e.target.value);
+      });
+      countrySearchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const firstVisible = countryList.querySelector('.country-item[style*="display: flex"], .country-item:not([style*="display: none"])');
+          if (firstVisible) {
+            firstVisible.click();
+          }
+        }
+      });
+    }
+
+    // Outside click closes dropdown
+    document.addEventListener('click', (e) => {
+      if (!countryPicker.contains(e.target)) {
+        closePicker();
+      }
+    });
+
+    // Escape key closes dropdown
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && countryPicker.classList.contains('is-open')) {
+        closePicker();
+      }
+    });
+
+    function syncCountry() {
+      const c = getSelectedCountry();
+      if (countryIso) countryIso.textContent = c.code;
+      if (countryDialCode) countryDialCode.textContent = c.dial;
+
+      if (countryList) {
+        countryList.querySelectorAll('.country-item').forEach((item) => {
+          if (item.getAttribute('data-code') === c.code) {
+            item.classList.add('selected');
+          } else {
+            item.classList.remove('selected');
+          }
+        });
+      }
+
+      if (contactInput) {
+        contactInput.setAttribute('maxlength', c.digits);
+        const cleaned = contactInput.value.replace(/\D/g, '').slice(0, c.digits);
+        if (contactInput.value !== cleaned) {
+          contactInput.value = cleaned;
+        }
+
+        const helperDefault = c.code === 'GH'
+          ? 'e.g. 0244123456 (10 digits)'
+          : `e.g. up to ${c.digits} digits for ${c.code} (${c.dial})`;
+        if (phoneHelper) {
+          phoneHelper.setAttribute('data-default', helperDefault);
+          if (!contactInput.value) {
+            phoneHelper.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${helperDefault}`;
+          }
+        }
+
+        if (contactInput.dataset.touched === '1' && typeof contactInput.__validate === 'function') {
+          contactInput.__validate();
+        }
+      }
+    }
+
+    countrySelect.addEventListener('change', syncCountry);
+    syncCountry();
+  }
+
   function initValidators() {
     const nameInput = document.getElementById('name');
     const contactInput = document.getElementById('contact');
@@ -251,8 +490,8 @@
     const emailInput = document.getElementById('email');
     const locationInput = document.getElementById('location');
 
-    // Strict 10-digit numeric constraint
-    enforceDigitsOnly(contactInput, 10);
+    // Dynamic numeric constraint (respects country's max digits)
+    enforceDigitsOnly(contactInput);
 
     bindField(nameInput, validateName);
     bindField(contactInput, validatePhone);
@@ -261,8 +500,60 @@
     bindField(locationInput, validateLocation);
   }
 
-  function enforceDigitsOnly(input, maxLen = 10) {
+  function bindField(input, fn) {
     if (!input) return;
+    const group = input.closest('.form-group');
+    const helper = document.getElementById(input.id + 'Helper');
+    const run = () => {
+      const res = fn(input.value);
+      applyState(group, helper, res);
+      return res.valid;
+    };
+    input.addEventListener('blur', run);
+    input.addEventListener('input', () => {
+      if (input.dataset.touched === '1') run();
+    });
+    input.addEventListener('change', () => {
+      if (input.dataset.touched === '1') run();
+    });
+    input.__validate = () => {
+      input.dataset.touched = '1';
+      return run();
+    };
+  }
+
+  function applyState(group, helper, result) {
+    if (!group) return;
+    group.classList.remove('valid', 'invalid');
+    if (!result.touched) return;
+    if (result.valid) group.classList.add('valid');
+    else if (result.showError) group.classList.add('invalid');
+    if (helper && result.message) {
+      const prefix = helper.querySelector('i')?.outerHTML || '';
+      helper.innerHTML = prefix + ' ' + result.message;
+    }
+  }
+
+  function validateName(raw) {
+    const v = (raw || '').trim();
+    if (!v) return { valid: false, showError: false, touched: false, message: 'Please enter your full legal name.' };
+    if (/\d/.test(v)) {
+      return { valid: false, showError: true, touched: true, message: 'Name cannot contain numbers. Use letters only.' };
+    }
+    if (v.length < 2) return { valid: false, showError: true, touched: true, message: 'Name must be at least 2 characters long.' };
+    if (!/^[A-Za-z\u00C0-\u024F\s'.-]+$/.test(v)) {
+      return { valid: false, showError: true, touched: true, message: 'Name can only contain letters, spaces, hyphens, and apostrophes.' };
+    }
+    return { valid: true, touched: true, message: 'Name looks great.' };
+  }
+
+  function enforceDigitsOnly(input) {
+    if (!input) return;
+
+    function getMaxLen() {
+      const attr = parseInt(input.getAttribute('maxlength'), 10);
+      return !isNaN(attr) && attr > 0 ? attr : 15;
+    }
 
     input.addEventListener('keydown', (e) => {
       // Allow navigation and shortcut keys
@@ -290,6 +581,7 @@
     });
 
     input.addEventListener('input', () => {
+      const maxLen = getMaxLen();
       const cleaned = input.value.replace(/\D/g, '').slice(0, maxLen);
       if (input.value !== cleaned) {
         input.value = cleaned;
@@ -298,6 +590,7 @@
 
     input.addEventListener('paste', (e) => {
       e.preventDefault();
+      const maxLen = getMaxLen();
       const pasteText = (e.clipboardData || window.clipboardData)?.getData('text') || '';
       const digitsOnly = pasteText.replace(/\D/g, '').slice(0, maxLen);
       input.value = digitsOnly;
@@ -306,102 +599,72 @@
     });
   }
 
-  function bindField(input, fn) {
-    if (!input) return;
-    const group = input.closest('.form-group');
-    const helper = document.getElementById(input.id + 'Helper');
-    const run = (opts) => {
-      const res = fn(input.value);
-      applyState(group, helper, res);
-      return res.valid;
-    };
-    input.addEventListener('blur', () => run({ t: 'blur' }));
-    input.addEventListener('input', () => {
-      if (input.dataset.touched === '1') run({ t: 'input' });
-    });
-    input.addEventListener('change', () => {
-      input.dataset.touched = '1';
-      run({ t: 'change' });
-    });
-    input.__validate = () => {
-      input.dataset.touched = '1';
-      return run({ t: 'submit' });
-    };
-  }
-  function applyState(group, helper, result) {
-    group.classList.remove('valid', 'invalid');
-    if (!result.touched && !result.forced) return;
-    if (result.valid) group.classList.add('valid');
-    else if (result.showError) group.classList.add('invalid');
-    if (helper) {
-      const prefix = helper.querySelector('i')?.outerHTML ?? '';
-      helper.innerHTML = prefix + ' ' + (result.message || helper.dataset.default || '');
+  function formatArrangedPhone(rawDigits, country) {
+    let clean = (rawDigits || '').replace(/\D/g, '');
+    if (country.omitZero && clean.startsWith('0')) {
+      clean = clean.replace(/^0+/, '');
     }
+    const dial = country.dial || '+';
+    return `${dial}${clean}`;
   }
 
-  function validateName(raw) {
-    const v = (raw || '').trim();
-    if (!v) return { valid: false, showError: false, touched: !!v, message: 'Please enter your full name.' };
-    if (/\d/.test(v)) {
-      return { valid: false, showError: true, touched: true, message: 'Name cannot contain numbers. Please use letters only.' };
-    }
-    if (v.length < 2) return { valid: false, showError: true, touched: true, message: 'Name must be at least 2 characters long.' };
-    if (v.length > 100) return { valid: false, showError: true, touched: true, message: 'Name is too long (maximum 100 characters).' };
-    if (!/^[A-Za-z\u00C0-\u024F\s'.-]+$/.test(v)) {
-      return {
-        valid: false, showError: true, touched: true,
-        message: 'Name can only contain letters, spaces, hyphens, and apostrophes.'
-      };
-    }
-    return { valid: true, touched: true, message: 'Name looks great.' };
-  }
-
-  function normalizePhone(phone) {
-    if (!phone) return '';
-    const cleaned = String(phone).replace(/\D/g, '');
-    if (cleaned.startsWith('0') && cleaned.length === 10) {
-      return '233' + cleaned.substring(1);
-    }
-    if (cleaned.startsWith('233') && cleaned.length === 12) {
-      return cleaned;
-    }
-    return cleaned;
-  }
-  function formatPhoneForDisplay(phone) {
-    const s = String(phone || '').replace(/\D/g, '');
-    if (s.length === 10) return s;
-    if (s.startsWith('233') && s.length === 12) return '0' + s.substring(3);
-    return s;
-  }
   function validatePhone(raw) {
     const v = raw || '';
     const digits = v.replace(/\D/g, '');
-    if (!digits) return { valid: false, showError: false, touched: !!v, message: 'Please enter your 10-digit phone number.' };
+    const country = getSelectedCountry();
 
-    if (digits.length < 10) {
-      return {
-        valid: false, showError: true, touched: true,
-        message: `Phone number must be exactly 10 digits (${digits.length}/10 entered).`
-      };
-    }
-    if (!digits.startsWith('0')) {
-      return {
-        valid: false, showError: true, touched: true,
-        message: 'Local phone number must start with 0 (e.g. 0244123456).'
-      };
+    if (!digits) {
+      return { valid: false, showError: false, touched: !!v, message: `Please enter phone number (${country.digits} digits max).` };
     }
 
-    const validPrefixes = ['020', '023', '024', '025', '026', '027', '028', '029', '050', '053', '054', '055', '056', '057', '058', '059'];
-    const pre = digits.substring(0, 3);
-    if (!validPrefixes.includes(pre)) {
+    if (country.code === 'GH') {
+      if (digits.length < 10) {
+        return {
+          valid: false, showError: true, touched: true,
+          message: `Ghana phone number must be exactly 10 digits (${digits.length}/10 entered).`
+        };
+      }
+      if (!digits.startsWith('0')) {
+        return {
+          valid: false, showError: true, touched: true,
+          message: 'Ghana phone number must start with 0 (e.g. 0244123456).'
+        };
+      }
+      const validPrefixes = ['020', '023', '024', '025', '026', '027', '028', '029', '050', '053', '054', '055', '056', '057', '058', '059'];
+      const pre = digits.substring(0, 3);
+      if (!validPrefixes.includes(pre)) {
+        return {
+          valid: false, showError: true, touched: true,
+          message: 'Unrecognized Ghana network prefix (024, 054, 020, etc.). Please verify.'
+        };
+      }
       return {
-        valid: false, showError: true, touched: true,
-        message: 'Unrecognized Ghana network prefix (024, 054, 020, etc.). Please verify.'
+        valid: true, touched: true,
+        message: `Valid Ghana number (${digits}) → +233 ${digits.substring(1)}`
       };
     }
+
+    // Other country validation (e.g. USA, UK, Canada, Nigeria, etc.)
+    const minDigits = (country.code === 'US' || country.code === 'CA') ? 10 : 7;
+    const maxDigits = country.digits || 15;
+
+    if (digits.length < minDigits) {
+      return {
+        valid: false, showError: true, touched: true,
+        message: `Phone number is too short (${digits.length}/${minDigits} min digits).`
+      };
+    }
+    if (digits.length > maxDigits) {
+      return {
+        valid: false, showError: true, touched: true,
+        message: `Phone number cannot exceed ${maxDigits} digits.`
+      };
+    }
+
+    const arranged = formatArrangedPhone(digits, country);
     return {
       valid: true, touched: true,
-      message: 'Valid phone number (' + digits + ').'
+      message: `Valid phone number → ${arranged}`
     };
   }
 
@@ -486,9 +749,15 @@
     try {
       const API_URL = (window._APP_CONFIG && window._APP_CONFIG.apiUrl) || window.API_BASE_URL || (window.location.origin + '/api');
 
+      const country = getSelectedCountry();
+      const rawContact = document.getElementById('contact').value.trim();
+      const arrangedContact = formatArrangedPhone(rawContact, country);
+
       const payload = {
         name: document.getElementById('name').value.trim(),
-        contact: document.getElementById('contact').value.trim(),
+        contact: arrangedContact,
+        rawContact: rawContact,
+        countryCode: country.code,
         memberStatus: (document.getElementById('memberStatus')?.value || '').trim(),
         email: document.getElementById('email').value.trim(),
         location: document.getElementById('location').value.trim()
@@ -506,16 +775,21 @@
       if (!response.ok || !data || data.success === false) {
         const code = data && data.code;
         let msg = (data && data.message) || 'Something went wrong. Please try again.';
-        if (code === 'DUPLICATE_CONTACT') {
-          msg = 'This phone number has already been registered. ' +
-            'If this is you, check your SMS for the ticket we sent. ' +
-            'Each person may register only once.';
+        let title = 'We hit a snag';
+        let isDuplicate = false;
+
+        if (code === 'DUPLICATE_REGISTRATION' || code === 'DUPLICATE_CONTACT' || /already exists|already registered/i.test(msg)) {
+          title = "You're Already Registered!";
+          msg = 'You are already registered! Please check your SMS for your ticket ID.';
+          isDuplicate = true;
         } else if (response.status === 400) {
+          title = 'Please Check Your Details';
           msg = (data && data.message) || 'Some fields need your attention — please review and try again.';
         } else if (response.status >= 500) {
+          title = 'Server Busy';
           msg = 'Server is temporarily busy. Please try again in a moment.';
         }
-        showErrorModal(msg);
+        showErrorModal(msg, title, isDuplicate);
         setLoading(false);
         return;
       }
@@ -532,7 +806,7 @@
 
     } catch (err) {
       console.error(err);
-      showErrorModal('We couldn\u2019t reach the server right now. Check your connection and try again.');
+      showErrorModal('We couldn\u2019t reach the server right now. Check your connection and try again.', 'Connection Issue', false);
     } finally {
       setLoading(false);
     }
@@ -544,8 +818,41 @@
     return parts[0] ? parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase() : 'friend';
   }
 
-  function showErrorModal(msg) {
-    errorMessage.textContent = msg;
+  function showErrorModal(msg, title = 'We hit a snag', isDuplicate = false) {
+    const errorTitle = document.getElementById('errorTitle');
+    const errorIconCircle = document.querySelector('.error-icon-circle');
+    const errorIcon = errorIconCircle ? errorIconCircle.querySelector('i') : null;
+    const errorCloseBtn = document.getElementById('errorCloseBtn');
+
+    if (errorTitle) errorTitle.textContent = title;
+    if (errorMessage) errorMessage.textContent = msg;
+
+    if (errorCloseBtn) {
+      errorCloseBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Close';
+    }
+
+    if (errorModalTimer) {
+      clearTimeout(errorModalTimer);
+      errorModalTimer = null;
+    }
+
+    if (errorIconCircle) {
+      if (isDuplicate) {
+        errorIconCircle.classList.add('is-info');
+        if (errorIcon) errorIcon.className = 'fa-solid fa-circle-check';
+        // Immediately clear input fields so the form is fresh
+        resetForm();
+        // Automatically close modal after 3.5s
+        errorModalTimer = setTimeout(() => {
+          closeModal(errorModal);
+          resetForm();
+        }, 3500);
+      } else {
+        errorIconCircle.classList.remove('is-info');
+        if (errorIcon) errorIcon.className = 'fa-solid fa-xmark';
+      }
+    }
+
     openModal(errorModal);
   }
 })();
