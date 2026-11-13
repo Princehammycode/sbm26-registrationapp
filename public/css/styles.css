@@ -254,8 +254,8 @@ body {
    ============================================ */
 .layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+  gap: 26px;
   align-items: stretch;
 }
 
@@ -280,7 +280,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 38px 36px;
+  padding: 28px 26px;
   border-radius: var(--radius-xl);
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -295,7 +295,7 @@ body {
 }
 
 .hero-title {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   line-height: 1.15;
 }
 
@@ -304,7 +304,7 @@ body {
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 700;
-  font-size: clamp(38px, 4.2vw, 56px);
+  font-size: clamp(30px, 3.1vw, 44px);
   background: linear-gradient(135deg, var(--pink-600) 0%, var(--pink-500) 45%, #be123c 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -317,15 +317,15 @@ body {
   font-family: var(--font-heading);
   font-weight: 800;
   letter-spacing: -0.02em;
-  font-size: clamp(28px, 3.2vw, 38px);
+  font-size: clamp(22px, 2.3vw, 30px);
   color: var(--ash-900);
 }
 
 .hero-subtitle {
   color: var(--ash-600);
-  font-size: 15.5px;
-  line-height: 1.6;
-  margin-bottom: 24px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin-bottom: 16px;
 }
 
 /* Event Meta 2x2 Grid */
@@ -333,8 +333,8 @@ body {
   list-style: none;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  margin-bottom: 22px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 @media (max-width: 580px) {
@@ -346,8 +346,8 @@ body {
 .event-meta li {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 13px 16px;
+  gap: 10px;
+  padding: 10px 12px;
   border-radius: var(--radius-md);
   background: var(--ash-subtle);
   border: 1px solid var(--ash-border);
@@ -362,8 +362,8 @@ body {
 }
 
 .meta-icon {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-sm);
   display: grid;
   place-items: center;
@@ -371,7 +371,7 @@ body {
   color: #ffffff;
   box-shadow: 0 4px 12px rgba(225, 29, 72, 0.28);
   flex-shrink: 0;
-  font-size: 16px;
+  font-size: 14px;
   transition: all var(--t-fast) var(--ease);
 }
 
@@ -381,7 +381,7 @@ body {
 }
 
 .meta-label {
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.12em;
   color: var(--pink-700);
   text-transform: uppercase;
@@ -390,14 +390,15 @@ body {
 }
 
 .meta-value {
-  font-size: 14.5px;
+  font-size: 12.5px;
   font-weight: 700;
+  line-height: 1.35;
   color: var(--ash-900);
 }
 
 /* Theme Card - Professional Design */
 .theme-card {
-  padding: 24px 28px;
+  padding: 16px 20px;
   border-radius: var(--radius-lg);
   background: linear-gradient(135deg, #fff5f6 0%, #ffffff 52%, #fdf2f8 100%);
   border: 1.5px solid rgba(251, 113, 133, 0.38);
@@ -417,7 +418,7 @@ body {
 }
 
 .theme-tag {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--pink-700);
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -425,21 +426,21 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .theme-tag i {
   color: var(--pink-600);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .theme-text {
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: clamp(19px, 2.1vw, 24px);
+  font-size: clamp(15px, 1.5vw, 19px);
   color: var(--ash-900);
-  margin-bottom: 10px;
-  line-height: 1.35;
+  margin-bottom: 8px;
+  line-height: 1.3;
   letter-spacing: -0.01em;
 }
 
@@ -447,11 +448,11 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 5px 14px;
+  padding: 4px 12px;
   border-radius: var(--radius-pill);
   background: rgba(225, 29, 72, 0.08);
   border: 1px solid rgba(225, 29, 72, 0.15);
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 800;
   color: var(--pink-700);
   letter-spacing: 0.06em;
@@ -459,7 +460,7 @@ body {
 
 .theme-ref i {
   color: var(--pink-600);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 /* ============================================
@@ -543,7 +544,7 @@ body {
 }
 
 .form-grid-row:first-of-type {
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   z-index: 30;
 }
 
