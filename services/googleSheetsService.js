@@ -74,7 +74,9 @@ async function saveToGoogleSheets(registration) {
     const values = [[
       registration.ticketId,
       registration.name,
-      registration.contact,
+      typeof registration.contact === 'string' && registration.contact.startsWith('0')
+        ? `'${registration.contact}`
+        : registration.contact,
       registration.location,
       registration.email,
       registration.registeredAt,

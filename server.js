@@ -62,8 +62,11 @@ function isEventRegistrationClosed() {
 }
 
 app.get('/api/config', (req, res) => {
+  const requestApiUrl = `${req.protocol}://${req.get('host')}/api`;
+  const envApiUrl = process.env.API_BASE_URL;
+  const isEnvLocal = !envApiUrl || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(envApiUrl);
   res.json({
-    apiUrl: process.env.API_BASE_URL || `${req.protocol}://${req.get('host')}/api`,
+    apiUrl: isEnvLocal ? requestApiUrl : envApiUrl,
     isClosed: isEventRegistrationClosed()
   });
 });
@@ -189,7 +192,19 @@ app.post(
         }
       }
 
-      const normalizedContact = normalizePhone(formattedContact);
+      // Store Ghana numbers with leading 0 in the backend (e.g. 0244123456)
+      // while preserving international format (+...) for other countries
+      let storedContact = formattedContact;
+      const formattedDigits = formattedContact.replace(/\D/g, '');
+      if (formattedDigits.startsWith('233') && formattedDigits.length === 12) {
+        storedContact = '0' + formattedDigits.substring(3);
+      } else if (formattedDigits.length === 10 && formattedDigits.startsWith('0')) {
+        storedContact = formattedDigits;
+      } else if (formattedDigits.length === 9 && !formattedDigits.startsWith('0')) {
+        storedContact = '0' + formattedDigits;
+      }
+
+      const normalizedContact = normalizePhone(storedContact);
       let ticketId;
       let registration;
       let useSheetsPrimary = !process.env.DATABASE_URL;
@@ -197,7 +212,7 @@ app.post(
       if (process.env.DATABASE_URL) {
         registration = {
           name,
-          contact: formattedContact,
+          contact: storedContact,
           memberStatus: memberStatus || null,
           location,
           email: email || null
@@ -260,7 +275,7 @@ app.post(
         registration = {
           ticketId,
           name,
-          contact,
+          contact: storedContact,
           location,
           email: email || 'N/A',
           registeredAt: new Date().toISOString(),
@@ -274,15 +289,15 @@ app.post(
 
       (async () => {
         try {
-          console.log('📱 Sending SMS to:', contact);
+          console.log('📱 Sending SMS to:', storedContact);
           const smsResult = await smsService.sendRegistrationSMS(
-            contact,
+            storedContact,
             name,
             ticketId,
             ticketDownloadUrl
           );
           if (smsResult && smsResult.success) {
-            console.log('✅ SMS sent successfully to:', contact);
+            console.log('✅ SMS sent successfully to:', storedContact);
             if (process.env.DATABASE_URL) {
               await databaseService
                 .updateRegistrationStatus(ticketId, null, true)
@@ -322,7 +337,7 @@ app.post(
               email,
               ticketId,
               ticketDownloadUrl,
-              { contact, memberStatus, location }
+              { contact: storedContact, memberStatus, location }
             );
             console.log('✅ Email sent successfully to:', email);
             if (process.env.DATABASE_URL) {

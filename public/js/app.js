@@ -618,20 +618,37 @@
     }
 
     if (country.code === 'GH') {
-      if (digits.length < 10) {
-        return {
-          valid: false, showError: true, touched: true,
-          message: `Ghana phone number must be exactly 10 digits (${digits.length}/10 entered).`
-        };
+      if (digits.startsWith('0')) {
+        if (digits.length < 10) {
+          return {
+            valid: false, showError: true, touched: true,
+            message: `Ghana phone number starting with 0 must be 10 digits (${digits.length}/10 entered).`
+          };
+        }
+        if (digits.length > 10) {
+          return {
+            valid: false, showError: true, touched: true,
+            message: 'Ghana phone number starting with 0 cannot exceed 10 digits.'
+          };
+        }
+      } else {
+        if (digits.length < 9) {
+          return {
+            valid: false, showError: true, touched: true,
+            message: `Ghana phone number must be 9 digits without 0, or 10 digits with 0 (${digits.length}/9 entered).`
+          };
+        }
+        if (digits.length > 9) {
+          return {
+            valid: false, showError: true, touched: true,
+            message: 'Ghana phone number without leading 0 must be 9 digits (e.g. 244123456).'
+          };
+        }
       }
-      if (!digits.startsWith('0')) {
-        return {
-          valid: false, showError: true, touched: true,
-          message: 'Ghana phone number must start with 0 (e.g. 0244123456).'
-        };
-      }
+
+      const ghLocal = digits.startsWith('0') ? digits : '0' + digits;
       const validPrefixes = ['020', '023', '024', '025', '026', '027', '028', '029', '050', '053', '054', '055', '056', '057', '058', '059'];
-      const pre = digits.substring(0, 3);
+      const pre = ghLocal.substring(0, 3);
       if (!validPrefixes.includes(pre)) {
         return {
           valid: false, showError: true, touched: true,
@@ -640,7 +657,7 @@
       }
       return {
         valid: true, touched: true,
-        message: `Valid Ghana number (${digits}) → +233 ${digits.substring(1)}`
+        message: `Valid Ghana number (${ghLocal}) → +233 ${ghLocal.substring(1)}`
       };
     }
 
