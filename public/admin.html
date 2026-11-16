@@ -15,7 +15,7 @@
     referrerpolicy="no-referrer">
   <link rel="icon" type="image/png" href="images/logo.png">
   <link rel="apple-touch-icon" href="images/logo.png">
-  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/admin.css?v=20261116b">
 </head>
 
 <body>
@@ -176,9 +176,23 @@
               </button>
             </div>
           </div>
-          <!-- Clear All Active Filters Button (appears right next to headcount filter on the same line) -->
+          <!-- Location Filter Dropdown -->
+          <div class="toolbar-dropdown-wrap" id="locationDropdownWrap">
+            <button type="button" class="toolbar-dropdown-btn" id="locationDropdownBtn" aria-haspopup="true"
+              aria-expanded="false" title="Filter by location">
+              <i class="fa-solid fa-location-dot" id="locationDropdownIcon"></i>
+              <span class="dropdown-selected-text" id="locationDropdownLabel">All Locations</span>
+              <span class="pill-count" id="locationDropdownCount">0</span>
+              <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
+            </button>
+            <div class="toolbar-dropdown-menu left-aligned location-dropdown-menu" id="locationDropdownMenu" role="menu">
+              <!-- Populated dynamically from locations in the table -->
+            </div>
+          </div>
+
+          <!-- Clear All Active Filters Button (appears right next to filters on the same line) -->
           <button type="button" class="btn btn-clear-filters" id="clearAllFiltersBtn"
-            title="Clear all active search, date and contact filters" style="display: none;">
+            title="Clear all active search, date, contact and location filters" style="display: none;">
             <i class="fa-solid fa-filter-circle-xmark"></i>
             <span>Clear</span>
           </button>
@@ -336,7 +350,7 @@
 
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/admin.js"></script>
+  <script src="js/admin.js?v=20261116b"></script>
 </body>
 
 </html>

@@ -10,6 +10,7 @@
 
   let currentView = 'registrations'; // 'registrations' | 'newconverts'
   let contactFilterMode = 'all'; // 'all' | 'unique' | 'shared'
+  let selectedLocations = new Set(); // empty = All Locations; non-empty = Set of normalized location keys
   let selectedDate = ''; // 'YYYY-MM-DD'
 
   let allRegistrations = [];
@@ -87,6 +88,13 @@
         countFilterUnique: document.getElementById('countFilterUnique'),
         countFilterShared: document.getElementById('countFilterShared'),
 
+        // Location Filter Dropdown
+        locationDropdownWrap: document.getElementById('locationDropdownWrap'),
+        locationDropdownBtn: document.getElementById('locationDropdownBtn'),
+        locationDropdownLabel: document.getElementById('locationDropdownLabel'),
+        locationDropdownCount: document.getElementById('locationDropdownCount'),
+        locationDropdownMenu: document.getElementById('locationDropdownMenu'),
+
         // Export Dropdown
         exportDropdownWrap: document.getElementById('exportDropdownWrap'),
         exportDropdownBtn: document.getElementById('exportDropdownBtn'),
@@ -145,6 +153,7 @@
     // 3. Setup tabs, filter dropdown, export dropdown & date filter
     setupTabs();
     setupContactFilters();
+    setupLocationFilter();
     setupExportDropdown();
     setupDateFilter();
     setupClearAllFilters();
@@ -274,12 +283,26 @@
   }
 
   function closeAllDropdowns(exceptMenu) {
-    const { filterDropdownBtn, filterDropdownMenu, exportDropdownBtn, exportDropdownMenu } = state.el;
+    const {
+      filterDropdownBtn,
+      filterDropdownMenu,
+      locationDropdownBtn,
+      locationDropdownMenu,
+      exportDropdownBtn,
+      exportDropdownMenu
+    } = state.el;
     if (filterDropdownMenu && filterDropdownMenu !== exceptMenu) {
       filterDropdownMenu.classList.remove('open');
       if (filterDropdownBtn) {
         filterDropdownBtn.classList.remove('open');
         filterDropdownBtn.setAttribute('aria-expanded', 'false');
+      }
+    }
+    if (locationDropdownMenu && locationDropdownMenu !== exceptMenu) {
+      locationDropdownMenu.classList.remove('open');
+      if (locationDropdownBtn) {
+        locationDropdownBtn.classList.remove('open');
+        locationDropdownBtn.setAttribute('aria-expanded', 'false');
       }
     }
     if (exportDropdownMenu && exportDropdownMenu !== exceptMenu) {
@@ -289,6 +312,178 @@
         exportDropdownBtn.setAttribute('aria-expanded', 'false');
       }
     }
+  }
+
+  function normalizeLocationKey(raw) {
+    const trimmed = String(raw || '').trim().replace(/\s+/g, ' ');
+    if (!trimmed || trimmed.toLowerCase() === 'n/a' || trimmed === '—') return 'n/a';
+    return trimmed.toLowerCase();
+  }
+
+  function formatLocationLabel(raw) {
+    const trimmed = String(raw || '').trim().replace(/\s+/g, ' ');
+    if (!trimmed || trimmed.toLowerCase() === 'n/a' || trimmed === '—') return 'N/A (Not Specified)';
+    return trimmed;
+  }
+
+  function setupLocationFilter() {
+    const { locationDropdownBtn, locationDropdownMenu } = state.el;
+    if (!locationDropdownBtn || !locationDropdownMenu) return;
+
+    locationDropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeAllDropdowns(locationDropdownMenu);
+      const isOpen = locationDropdownMenu.classList.toggle('open');
+      locationDropdownBtn.classList.toggle('open', isOpen);
+      locationDropdownBtn.setAttribute('aria-expanded', isOpen);
+    });
+
+    locationDropdownMenu.addEventListener('click', (e) => {
+      const item = e.target.closest('.dropdown-item[data-location]');
+      if (!item) return;
+      e.stopPropagation();
+      const locKey = item.getAttribute('data-location') || 'all';
+      toggleLocationFilter(locKey);
+    });
+  }
+
+  function updateLocationDropdownSummary(locMap, totalCount) {
+    const { locationDropdownLabel, locationDropdownCount } = state.el;
+    if (selectedLocations.size === 0) {
+      if (locationDropdownLabel) locationDropdownLabel.textContent = 'All Locations';
+      if (locationDropdownCount) locationDropdownCount.textContent = totalCount;
+      return;
+    }
+
+    let selectedTotal = 0;
+    const labels = [];
+    selectedLocations.forEach((key) => {
+      const entry = locMap.get(key);
+      if (entry) {
+        selectedTotal += entry.count;
+        labels.push(entry.label);
+      }
+    });
+
+    if (locationDropdownLabel) {
+      locationDropdownLabel.textContent =
+        selectedLocations.size === 1 && labels.length === 1
+          ? labels[0]
+          : `${selectedLocations.size} Locations`;
+    }
+    if (locationDropdownCount) locationDropdownCount.textContent = selectedTotal;
+  }
+
+  function populateLocationFilterOptions() {
+    const { locationDropdownMenu } = state.el;
+    if (!locationDropdownMenu) return;
+
+    const dataset = currentView === 'registrations' ? allRegistrations : allNewConverts;
+    const locMap = new Map();
+
+    dataset.forEach((item) => {
+      const rawLoc = item.location || item.Location || '';
+      const key = normalizeLocationKey(rawLoc);
+      const label = formatLocationLabel(rawLoc);
+      if (!locMap.has(key)) {
+        locMap.set(key, { key, label, count: 0 });
+      }
+      locMap.get(key).count += 1;
+    });
+
+    // Drop any selected location that no longer exists in the dataset
+    Array.from(selectedLocations).forEach((key) => {
+      if (!locMap.has(key)) selectedLocations.delete(key);
+    });
+
+    const entries = Array.from(locMap.values()).sort((a, b) => {
+      if (a.key === 'n/a') return 1;
+      if (b.key === 'n/a') return -1;
+      return a.label.localeCompare(b.label);
+    });
+
+    const isAllActive = selectedLocations.size === 0;
+    let html = `
+      <button type="button" class="dropdown-item${isAllActive ? ' active' : ''}" data-location="all" data-label="All Locations" role="menuitemcheckbox" aria-checked="${isAllActive}">
+        <div class="dropdown-item-info">
+          <span class="location-check"><i class="fa-solid fa-check"></i></span>
+          <span>All Locations</span>
+        </div>
+        <span class="pill-count">${dataset.length}</span>
+      </button>
+    `;
+
+    entries.forEach((entry) => {
+      const isActive = selectedLocations.has(entry.key);
+      html += `
+        <button type="button" class="dropdown-item${isActive ? ' active' : ''}" data-location="${escapeHtml(entry.key)}" data-label="${escapeHtml(entry.label)}" role="menuitemcheckbox" aria-checked="${isActive}">
+          <div class="dropdown-item-info">
+            <span class="location-check"><i class="fa-solid fa-check"></i></span>
+            <span>${escapeHtml(entry.label)}</span>
+          </div>
+          <span class="pill-count">${entry.count}</span>
+        </button>
+      `;
+    });
+
+    locationDropdownMenu.innerHTML = html;
+    updateLocationDropdownSummary(locMap, dataset.length);
+  }
+
+  function toggleLocationFilter(locKey) {
+    if (locKey === 'all') {
+      selectedLocations.clear();
+    } else if (selectedLocations.has(locKey)) {
+      selectedLocations.delete(locKey);
+    } else {
+      selectedLocations.add(locKey);
+    }
+
+    currentPage = 1;
+
+    const { locationDropdownMenu, locationDropdownLabel, locationDropdownCount } = state.el;
+    const isAllActive = selectedLocations.size === 0;
+    let selectedTotal = 0;
+    let totalCount = 0;
+    const selectedLabels = [];
+
+    if (locationDropdownMenu) {
+      locationDropdownMenu.querySelectorAll('.dropdown-item[data-location]').forEach((item) => {
+        const key = item.getAttribute('data-location');
+        const pill = item.querySelector('.pill-count');
+        const count = parseInt(pill ? pill.textContent : '0', 10) || 0;
+
+        if (key === 'all') {
+          totalCount = count;
+          item.classList.toggle('active', isAllActive);
+          item.setAttribute('aria-checked', String(isAllActive));
+        } else {
+          const checked = selectedLocations.has(key);
+          item.classList.toggle('active', checked);
+          item.setAttribute('aria-checked', String(checked));
+          if (checked) {
+            selectedTotal += count;
+            selectedLabels.push(item.getAttribute('data-label') || key);
+          }
+        }
+      });
+    }
+
+    if (locationDropdownLabel) {
+      if (isAllActive) {
+        locationDropdownLabel.textContent = 'All Locations';
+      } else if (selectedLocations.size === 1 && selectedLabels.length === 1) {
+        locationDropdownLabel.textContent = selectedLabels[0];
+      } else {
+        locationDropdownLabel.textContent = `${selectedLocations.size} Locations`;
+      }
+    }
+    if (locationDropdownCount) {
+      locationDropdownCount.textContent = isAllActive ? totalCount : selectedTotal;
+    }
+
+    filterTable();
+    updateClearFiltersButtonVisibility();
   }
 
   function setupDateFilter() {
@@ -345,6 +540,7 @@
       if (dateClearBtn) dateClearBtn.style.display = 'none';
     }
     contactFilterMode = 'all';
+    selectedLocations.clear();
     currentPage = 1;
 
     const { filterDropdownMenu } = state.el;
@@ -355,20 +551,25 @@
       });
     }
 
+    populateLocationFilterOptions();
     filterTable();
     updateClearFiltersButtonVisibility();
     showToast('All filters cleared', 'ok');
   }
 
-  function updateClearFiltersButtonVisibility() {
-    const { clearAllFiltersBtn, searchInput } = state.el;
-    if (!clearAllFiltersBtn) return;
+  function hasActiveFilters() {
+    const { searchInput } = state.el;
     const hasSearch = !!(searchInput && searchInput.value.trim());
     const hasDate = !!selectedDate;
     const hasContactFilter = contactFilterMode !== 'all';
+    const hasLocation = selectedLocations.size > 0;
+    return hasSearch || hasDate || hasContactFilter || hasLocation;
+  }
 
-    const isAnyFilterActive = hasSearch || hasDate || hasContactFilter;
-    clearAllFiltersBtn.style.display = isAnyFilterActive ? 'inline-flex' : 'none';
+  function updateClearFiltersButtonVisibility() {
+    const { clearAllFiltersBtn } = state.el;
+    if (!clearAllFiltersBtn) return;
+    clearAllFiltersBtn.style.display = hasActiveFilters() ? 'inline-flex' : 'none';
   }
 
   function extractDateYMD(dateString) {
@@ -533,6 +734,8 @@
       if (searchClearBtn) searchClearBtn.style.display = 'none';
     }
 
+    selectedLocations.clear();
+    populateLocationFilterOptions();
     updateViewUI();
     filterTable();
     updateClearFiltersButtonVisibility();
@@ -794,6 +997,7 @@
       }
 
       if (currentView === 'registrations') {
+        populateLocationFilterOptions();
         const q = state.el.searchInput?.value || '';
         filteredRegistrations = filterRegistrations(q);
         renderCurrentData();
@@ -826,6 +1030,7 @@
       }
 
       if (currentView === 'newconverts') {
+        populateLocationFilterOptions();
         const q = state.el.searchInput?.value || '';
         filteredNewConverts = filterNewConverts(q);
         renderCurrentData();
@@ -863,6 +1068,12 @@
       list = list.filter((reg) => {
         const regAt = reg.registration_date || reg.registered_at || reg.registeredAt || reg['Registered At'];
         return extractDateYMD(regAt) === selectedDate;
+      });
+    }
+
+    if (selectedLocations.size > 0) {
+      list = list.filter((reg) => {
+        return selectedLocations.has(normalizeLocationKey(reg.location || reg.Location || ''));
       });
     }
 
@@ -911,6 +1122,12 @@
       list = list.filter((c) => {
         const cAt = c.created_at || c.createdAt || c.recorded_at;
         return extractDateYMD(cAt) === selectedDate;
+      });
+    }
+
+    if (selectedLocations.size > 0) {
+      list = list.filter((c) => {
+        return selectedLocations.has(normalizeLocationKey(c.location || ''));
       });
     }
 
@@ -1329,13 +1546,27 @@
     }
   }
 
+  function appendLocationSuffix(baseFilename) {
+    if (selectedLocations.size === 1) {
+      const onlyLoc = Array.from(selectedLocations)[0];
+      const locSlug = onlyLoc.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
+      return locSlug ? `${baseFilename}-${locSlug}` : baseFilename;
+    }
+    if (selectedLocations.size > 1) {
+      return `${baseFilename}-${selectedLocations.size}-locations`;
+    }
+    return baseFilename;
+  }
+
   async function exportRegistrationsCSV() {
-    let dataToExport = (filteredRegistrations && filteredRegistrations.length > 0)
-      ? filteredRegistrations
-      : allRegistrations;
+    const isFiltered = hasActiveFilters();
+    const dataToExport = isFiltered ? filteredRegistrations : allRegistrations;
 
     if (!dataToExport || dataToExport.length === 0) {
-      showToast('No registration data available to export.', 'warn');
+      showToast(
+        isFiltered ? 'No filtered registration records match to export.' : 'No registration data available to export.',
+        'warn'
+      );
       return;
     }
 
@@ -1377,8 +1608,8 @@
         ].join(',');
       });
 
-      const filename = contactFilterMode === 'unique' ? 'sbm2026-registrations-unique' : 'sbm2026-registrations';
-      downloadCsvFile(headers, rows, filename);
+      const baseFilename = contactFilterMode === 'unique' ? 'sbm2026-registrations-unique' : 'sbm2026-registrations';
+      downloadCsvFile(headers, rows, appendLocationSuffix(baseFilename));
       showToast(`Exported ${dataToExport.length} registrations to CSV`, 'ok');
     } catch (err) {
       console.error('Export error:', err);
@@ -1387,12 +1618,14 @@
   }
 
   async function exportNewConvertsCSV() {
-    let dataToExport = (filteredNewConverts && filteredNewConverts.length > 0)
-      ? filteredNewConverts
-      : allNewConverts;
+    const isFiltered = hasActiveFilters();
+    const dataToExport = isFiltered ? filteredNewConverts : allNewConverts;
 
     if (!dataToExport || dataToExport.length === 0) {
-      showToast('No new converts data available to export.', 'warn');
+      showToast(
+        isFiltered ? 'No filtered new converts records match to export.' : 'No new converts data available to export.',
+        'warn'
+      );
       return;
     }
 
@@ -1419,8 +1652,8 @@
         ].join(',');
       });
 
-      const filename = contactFilterMode === 'unique' ? 'sbm2026-new-converts-unique' : 'sbm2026-new-converts';
-      downloadCsvFile(headers, rows, filename);
+      const baseFilename = contactFilterMode === 'unique' ? 'sbm2026-new-converts-unique' : 'sbm2026-new-converts';
+      downloadCsvFile(headers, rows, appendLocationSuffix(baseFilename));
       showToast(`Exported ${dataToExport.length} new converts to CSV`, 'ok');
     } catch (err) {
       console.error('Export error:', err);
@@ -1436,6 +1669,12 @@
           ? (item.registration_date || item.registered_at || item.registeredAt || item['Registered At'])
           : (item.created_at || item.createdAt || item.recorded_at);
         return extractDateYMD(itemDate) === selectedDate;
+      });
+    }
+
+    if (selectedLocations.size > 0) {
+      dataset = dataset.filter((item) => {
+        return selectedLocations.has(normalizeLocationKey(item.location || item.Location || ''));
       });
     }
 

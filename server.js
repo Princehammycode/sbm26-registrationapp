@@ -9,7 +9,6 @@ const excelService = require('./services/excelService');
 const dbService = require('./services/dbService');
 const databaseService = require('./services/databaseService');
 const pdfTicketService = require('./services/pdfTicketService');
-const keepAliveService = require('./services/keepAliveService');
 const { verifyToken, generateToken, verifyCredentials } = require('./middleware/auth');
 const memoryNewConverts = [];
 const {
@@ -946,8 +945,6 @@ if (require.main === module) {
     console.log(
       `📱 SMS service: ${process.env.MNOTIFY_API_KEY ? 'Configured (mNotify)' : 'Not configured'}`
     );
-    // Start background keep-alive to prevent Render free-tier inactive shutdown
-    keepAliveService.startKeepAlive();
   });
 }
 
